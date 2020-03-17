@@ -17,9 +17,13 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/anchors', 'AnchorController@index');
+Route::get('/anchors', 'AnchorController@index')->name('anchors');
 
-Route::get('/anchors/create', 'AnchorController@create');
+Route::get('/anchors/create', 'AnchorController@create')->name('anchors.create');
 
 Route::post('/anchors', 'AnchorController@store');
+
+Route::get('/anchors/result/{q}', 'AnchorController@result');
+
+Route::get('/anchors/detail/{keyword}/{rank}', 'AnchorController@detail');
 

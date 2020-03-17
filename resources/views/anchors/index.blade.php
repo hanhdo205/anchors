@@ -4,6 +4,7 @@
     @if (Session::has('message'))
         <div class="alert alert-info">{{ Session::get('message') }}</div>
     @endif
+
     <table class="table">
         <thead class="thead-dark">
         <tr>
@@ -16,12 +17,17 @@
         <tbody>
         @foreach($anchors as $anchor)
             <tr>
-                <th scope="row">{{$anchor->id}}</th>
-                <td>{{$anchor->keyword}}</td>
-                <td>{{$anchor->status}}</td>
-                <td>{{$anchor->created_at}}</td>
+                <th scope="row">{{ $anchor->id }}</th>
+                <td><a href="/anchors/result/{{$anchor->keyword}}">{{ $anchor->keyword }}</a></td>
+                <td>{{ $anchor->status }}</td>
+                <td>{{ $anchor->created_at }}</td>
             </tr>
         @endforeach
         </tbody>
     </table>
+	{!! $anchors->links() !!}
+	<script>
+      const artists = <?php echo json_encode($anchors) ;?>;
+      console.table(artists['data']);
+    </script>
 @endsection
