@@ -196,10 +196,15 @@ class AnchorController extends Controller
         foreach ($links as $link) {
 
             //Get the link text.
-            $linkText = $link->nodeValue;
+            $linkText = self::innerHTML($link);
             $linkType = 'Text';
+            
             if (preg_match('/<img/', $linkText)) {
                 $linkType = 'Img';
+                $doc = new \DOMDocument();
+                $doc->loadHTML($linkText);
+                $xpath = new \DOMXPath($doc);
+                $linkText = $xpath->evaluate("string(//img/@src)");
             }
             
             //Get the link in the href attribute.
@@ -224,11 +229,11 @@ class AnchorController extends Controller
 
             //Add the link to our $anchors array.
             $anchors[] = [
-                'text' => $linkText,
+                'text' => strip_tags($linkText),
                 'url' => $linkHref,
                 'type' => $linkType,
             ];
-            
+                        
             // Get current page form url e.x. &page=1
             $currentPage = LengthAwarePaginator::resolveCurrentPage();
      
@@ -249,5 +254,13 @@ class AnchorController extends Controller
         }
         
         return view('anchors.detail', ['result' => $result,'rank' => $rank,'anchors' => $paginatedItems]);
+    }
+    public static function innerHTML($node)
+    {
+        $ret = '';
+        foreach ($node->childNodes as $node) {
+            $ret .= $node->ownerDocument->saveHTML($node);
+        }
+        return $ret;
     }
 }

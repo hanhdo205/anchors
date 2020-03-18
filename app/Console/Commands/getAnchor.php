@@ -59,7 +59,7 @@ class getAnchor extends Command
         $rowstatus = $rows->status;
         $rowresult = $rows->result;
         
-        if ($rank >= $rowresult) {
+        if ($rowresult && $rank >= $rowresult) {
             $this->info('Out of Range');
             return;
         }
@@ -87,10 +87,15 @@ class getAnchor extends Command
         foreach ($links as $link) {
 
             //Get the link text.
-            $linkText = $link->nodeValue;
+            $linkText = AnchorController::innerHTML($link);
             $linkType = 'Text';
+            
             if (preg_match('/<img/', $linkText)) {
                 $linkType = 'Img';
+                $doc = new \DOMDocument();
+                $doc->loadHTML($linkText);
+                $xpath = new \DOMXPath($doc);
+                $linkText = $xpath->evaluate("string(//img/@src)");
             }
             
             //Get the link in the href attribute.
@@ -115,7 +120,7 @@ class getAnchor extends Command
 
             //Add the link to our $anchors array.
             $anchors[] = [
-                'text' => $linkText,
+                'text' => strip_tags($linkText),
                 'url' => $linkHref,
                 'type' => $linkType,
             ];
