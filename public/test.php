@@ -86,7 +86,7 @@ User-Agent
 */
  
 $html = str_get_html($data);
-echo $html;
+echo str_replace("/images/branding/googlelogo/","https://www.google.co.jp/images/branding/googlelogo/",$html);
  
 $result = [];
  
@@ -109,7 +109,6 @@ foreach ($html->find('div.srg div.g') as $g) {
 }
  
 // echo serialize($result);
-
 echo "<textarea style='width: 1024px; height: 600px;'>";
 print_r($result);
 echo "</textarea>";
