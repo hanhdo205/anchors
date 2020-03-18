@@ -110,7 +110,7 @@ class AnchorController extends Controller
         $keyword = DB::table('anchors')->where('id', $id)->value('keyword');
         
         //Obtain the first page html with the formated url
-        $data = self::file_get_contents_curl('https://www.google.co.jp/search?q='.$keyword.'&start=0&gl=jp');
+        $data = self::file_get_contents_curl('https://www.google.co.jp/search?q='.urlencode($keyword).'&start=0&gl=jp');
          
         /*
         create a simple_html_dom object from the retreived string
