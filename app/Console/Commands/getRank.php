@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-
 use App\Anchor;
 
-use Illuminate\Support\Facades\DB;
-
 use App\Http\Controllers\AnchorController;
+
+use Illuminate\Console\Command;
+
+use Illuminate\Support\Facades\DB;
 
 class getRank extends Command
 {
@@ -44,21 +44,23 @@ class getRank extends Command
     public function handle()
     {
         $id = $this->argument('rank');
-		$results = AnchorController::scrape($id);
-		$status = DB::table('anchors')->where('id', $id)->value('status');
-		
-		if ($status < 3) $status = 2;
-		
-		$content = array();
-		foreach($results as $key => $value) {
-			$content[] = [$key,$value['title'],$value['link']];
-		}
-		if(!empty($content)) {
-			$this->info('Keyword ID: ' . $id);
-			$headers = ['Rank ID', 'Title', 'URL'];
-			Anchor::where('id', $id)->update(array('status' => $status,'result' => count($results)));
-			$this->table($headers, $content);
-			$this->info('* Using command: php artisan getAnchor {Keyword ID} {Rank ID} to access each website');
-		}
+        $results = AnchorController::scrape($id);
+        $status = DB::table('anchors')->where('id', $id)->value('status');
+        
+        if ($status < 3) {
+            $status = 2;
+        }
+        
+        $content = [];
+        foreach ($results as $key => $value) {
+            $content[] = [$key,$value['title'],$value['link']];
+        }
+        if (!empty($content)) {
+            $this->info('Keyword ID: ' . $id);
+            $headers = ['Rank ID', 'Title', 'URL'];
+            Anchor::where('id', $id)->update(['status' => $status,'result' => count($results)]);
+            $this->table($headers, $content);
+            $this->info('* Using command: php artisan getAnchor {Keyword ID} {Rank ID} to access each website');
+        }
     }
 }

@@ -26,4 +26,3 @@ Route::post('/anchors', 'AnchorController@store');
 Route::get('/anchors/getrank/{q}', 'AnchorController@result');
 
 Route::get('/anchors/getanchor/{keyword}/{rank}', 'AnchorController@detail');
-

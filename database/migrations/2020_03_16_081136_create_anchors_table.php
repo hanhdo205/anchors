@@ -18,7 +18,7 @@ class CreateAnchorsTable extends Migration
             $table->string('keyword');
             $table->integer('status')->default(1);
             $table->integer('result')->nullable();
-			$table->string('access', 64)->nullable();
+            $table->string('access', 64)->nullable();
             $table->timestamps();
         });
     }
