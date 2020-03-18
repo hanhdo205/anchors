@@ -55,7 +55,7 @@ class AnchorController extends Controller
      * Removes all html tags and the contents within them unlike strip_tags which only removes the tags themselves.
      *
      */
-	static function strip_tags_content($text, $tags = '', $invert = FALSE)
+	public function strip_tags_content($text, $tags = '', $invert = FALSE)
 	{
 		//removes <br> often found in google result text, which is not handled below
 		$text = str_ireplace('<br>', '', $text);
@@ -83,7 +83,7 @@ class AnchorController extends Controller
      * file_get_contents replacement function using cURL One slight difference is that it uses your browser's idenity as it's own when contacting google
      *
      */
-	static function file_get_contents_curl($url)
+	public function file_get_contents_curl($url)
 	{
 		$ch = curl_init();
 	 
@@ -105,7 +105,7 @@ class AnchorController extends Controller
      * @param $keyword
      * @return array
      */
-	static function scrape($id)
+	public function scrape($id)
 	{
 		 
 		include(app_path() . '\includes\simple_html_dom.php');
