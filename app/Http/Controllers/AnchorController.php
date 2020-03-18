@@ -138,7 +138,7 @@ class AnchorController extends Controller
             $t = $a->find('h3', 0);
             $results[] = ['title' => strip_tags($t->innertext),
                 'link' => $a->href,
-                'description' => self::strip_tags_content($s->innertext)];
+                'description' => $s ? self::strip_tags_content($s->innertext) : ''];
         }
         
         //Cleans up the memory

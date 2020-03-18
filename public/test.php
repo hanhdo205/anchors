@@ -105,7 +105,7 @@ foreach ($html->find('div.srg div.g') as $g) {
     $t = $a->find('h3', 0);
     $result[] = ['title' => strip_tags($t->innertext),
         'link' => $a->href,
-        'description' => strip_tags_content($s->innertext)];
+        'description' => $s ? strip_tags_content($s->innertext) : ''];
 }
  
 // echo serialize($result);
