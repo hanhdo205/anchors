@@ -24,5 +24,5 @@
       const results = <?php echo json_encode($results) ;?>;
       console.table(results);
     </script>
-	* Using command: php artisan getRank {Keyword ID}
+	* Using command: <strong>php artisan getRank {Keyword ID}</strong>
 @endsection

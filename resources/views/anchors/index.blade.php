@@ -34,7 +34,7 @@
 							@break
 					@endswitch
 				</td>
-                <td>{{ $anchor->created_at }}</td>
+                <td>{{ date_format($anchor->created_at,'m/d/yy') }}</td>
             </tr>
         @endforeach
         </tbody>
@@ -44,5 +44,5 @@
       const artists = <?php echo json_encode($anchors) ;?>;
       console.table(artists['data']);
     </script>
-	* Using command: php artisan getRank {ID} to see the detail
+	* Using command: <strong>php artisan getRank {ID}</strong> to see the detail
 @endsection
