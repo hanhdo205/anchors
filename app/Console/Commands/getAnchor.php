@@ -93,7 +93,7 @@ class getAnchor extends Command
             if (preg_match('/<img/', $linkText)) {
                 $linkType = 'Img';
                 $doc = new \DOMDocument();
-                $doc->loadHTML($linkText);
+                @$doc->loadHTML($linkText);
                 $xpath = new \DOMXPath($doc);
                 $linkText = $xpath->evaluate("string(//img/@src)");
             }

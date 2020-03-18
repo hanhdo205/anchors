@@ -157,7 +157,12 @@ class AnchorController extends Controller
     {
         $id = $request->q;
         $results = self::scrape($id);
-        //Anchor::where('keyword', $keyword)->update(array('status' => 2));
+        $status = DB::table('anchors')->where('id', $id)->value('status');
+        
+        if ($status < 3) {
+            $status = 2;
+        }
+        Anchor::where('id', $id)->update(['status' => $status,'result' => count($results)]);
         
         return view('anchors.result', compact(['results','id']));
     }
@@ -170,11 +175,24 @@ class AnchorController extends Controller
      */
     public function detail(Request $request)
     {
-        $keyword = $request->keyword;
+        $id = $request->keyword;
         $rank = $request->rank;
-        $results = self::scrape($keyword);
+        
+        $rows = DB::table('anchors')
+        ->select(['status', 'result', 'access'])
+        ->find($id);
+        
+        $arr_access = explode(',', $rows->access);
+        if (!in_array($rank, $arr_access)) {
+            array_push($arr_access, $rank);
+        }
+        $arr_access = array_filter($arr_access, 'strlen');
+        $rowaccess = implode(',', $arr_access);
+        $rowstatus = $rows->status;
+        $rowresult = $rows->result;
+        
+        $results = self::scrape($id);
         $result = $results[$rank];
-        //Anchor::where('keyword', $keyword)->update(array('status' => 3));
         
         //Get the page's HTML source using file_get_contents.
         $html = self::file_get_contents_curl($result['link']);
@@ -202,7 +220,7 @@ class AnchorController extends Controller
             if (preg_match('/<img/', $linkText)) {
                 $linkType = 'Img';
                 $doc = new \DOMDocument();
-                $doc->loadHTML($linkText);
+                @$doc->loadHTML($linkText);
                 $xpath = new \DOMXPath($doc);
                 $linkText = $xpath->evaluate("string(//img/@src)");
             }
@@ -252,6 +270,17 @@ class AnchorController extends Controller
             // set url path for generted links
             $paginatedItems->setPath($request->url());
         }
+        
+        switch (true) {
+            case (count($arr_access) == $rowresult):
+                $rowstatus = 4;
+                break;
+            default:
+                $rowstatus = 3;
+                break;
+        }
+        
+        Anchor::where('id', $id)->update(['status' => $rowstatus,'access' => $rowaccess]);
         
         return view('anchors.detail', ['result' => $result,'rank' => $rank,'anchors' => $paginatedItems]);
     }
