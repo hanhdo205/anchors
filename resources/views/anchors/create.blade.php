@@ -11,7 +11,7 @@
 				@csrf <!-- {{ csrf_field() }} -->
 				  <div class="form-group">
 					<label for="keyword">Anchor Research System</label>
-					<input type="text" name="keyword" class="form-control" id="keyword" placeholder="キーワードを登録してください。">
+					<input type="text" name="keyword" class="form-control" id="keyword" placeholder="キーワードを登録してください。" autofocus='autofocus'>
 				  </div>
 					@if ($errors->any())
 						<div class="alert alert-danger">
