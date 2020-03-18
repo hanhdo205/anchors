@@ -4,9 +4,9 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 
-use Illuminate\Support\Facades\DB;
-
 use App\Anchor;
+
+use Illuminate\Support\Facades\DB;
 
 use App\Http\Controllers\AnchorController;
 
@@ -17,7 +17,7 @@ class getRank extends Command
      *
      * @var string
      */
-    protected $signature = 'rank:result {id}';
+    protected $signature = 'getRank {rank}';
 
     /**
      * The console command description.
@@ -43,18 +43,20 @@ class getRank extends Command
      */
     public function handle()
     {
-        $id = $this->argument('id');
-		$keyword = DB::table('anchors')->where('id', $id)->value('keyword');
-		$results = AnchorController::scrape($keyword);
+        $id = $this->argument('rank');
+		$results = AnchorController::scrape($id);
+		$status = DB::table('anchors')->where('id', $id)->value('status');
 		
-		Anchor::where('id', $id)->update(array('status' => 2));
+		if ($status < 3) $status = 2;
 		
-		$headers = ['Rank', 'Title', 'URL'];
 		$content = array();
 		foreach($results as $key => $value) {
 			$content[] = [$key + 1,$value['title'],$value['link']];
 		}
-		$this->table($headers, $content);
-		// $this->info('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36');
+		if(!empty($content)) {
+			$headers = ['Rank', 'Title', 'URL'];
+			Anchor::where('id', $id)->update(array('status' => $status,'result' => count($results)));
+			$this->table($headers, $content);
+		}
     }
 }

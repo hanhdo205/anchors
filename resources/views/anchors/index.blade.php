@@ -18,8 +18,22 @@
         @foreach($anchors as $anchor)
             <tr>
                 <th scope="row">{{ $anchor->id }}</th>
-                <td><a href="/anchors/result/{{$anchor->keyword}}">{{ $anchor->keyword }}</a></td>
-                <td>{{ $anchor->status }}</td>
+                <td><a href="/anchors/getrank/{{$anchor->id}}">{{ $anchor->keyword }}</a></td>
+                <td>@switch($anchor->status)
+						@case(4)
+							{{ Config::get('constant.status.4') }}
+							@break
+						@case(3)
+							{{ Config::get('constant.status.3') }}
+							@break
+						@case(2)
+							{{ Config::get('constant.status.2') }}
+							@break
+						@default
+							{{ Config::get('constant.status.1') }}
+							@break
+					@endswitch
+				</td>
                 <td>{{ $anchor->created_at }}</td>
             </tr>
         @endforeach

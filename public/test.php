@@ -74,7 +74,7 @@ function file_get_contents_curl($url) {
 $q = isset($_GET['q'])?urlencode(str_replace(' ', '+', $_GET['q'])):'none';
  
 //Obtain the first page html with the formated url
-$data = file_get_contents_curl('https://www.google.co.jp/search?start=0&gl=jp&q='.$q);
+$data = file_get_contents_curl('https://www.google.co.jp/search?q='.$q.'&start=0&gl=jp');
  
 /*
 create a simple_html_dom object from the retreived string

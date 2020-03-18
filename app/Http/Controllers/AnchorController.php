@@ -8,6 +8,8 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 use App\Anchor;
 
+use Illuminate\Support\Facades\DB;
+
 class AnchorController extends Controller
 {
     /**
@@ -103,13 +105,14 @@ class AnchorController extends Controller
      * @param $keyword
      * @return array
      */
-	static function scrape($keyword)
+	static function scrape($id)
 	{
 		 
 		include(app_path() . '\includes\simple_html_dom.php');
+		$keyword = DB::table('anchors')->where('id', $id)->value('keyword');
 		
 		//Obtain the first page html with the formated url
-		$data = self::file_get_contents_curl('https://www.google.co.jp/search?start=0&gl=jp&q='.$keyword);
+		$data = self::file_get_contents_curl('https://www.google.co.jp/search?q='.$keyword.'&start=0&gl=jp');
 		 
 		/*
 		create a simple_html_dom object from the retreived string
@@ -156,11 +159,11 @@ class AnchorController extends Controller
      */
 	public function result(Request $request)
 	{
-		$keyword = $request->q;
-		$results = self::scrape($keyword);
-		Anchor::where('keyword', $keyword)->update(array('status' => 2));
+		$id = $request->q;
+		$results = self::scrape($id);
+		//Anchor::where('keyword', $keyword)->update(array('status' => 2));
 		
-		return view('anchors.result',compact(['results','keyword']));
+		return view('anchors.result',compact(['results','id']));
 	}
 	
 	/**
@@ -175,7 +178,7 @@ class AnchorController extends Controller
 		$rank = $request->rank;
 		$results = self::scrape($keyword);
 		$result = $results[$rank];
-		Anchor::where('keyword', $keyword)->update(array('status' => 3));
+		//Anchor::where('keyword', $keyword)->update(array('status' => 3));
 		
 		//Get the page's HTML source using file_get_contents.
 		$html = self::file_get_contents_curl($result['link']);
@@ -207,13 +210,13 @@ class AnchorController extends Controller
 			$linkHref = $link->getAttribute('href');
 
 			//If the text is empty, skip it and don't
-			//add it to our $extractedLinks array
+			//add it to our $anchors array
 			if(strlen(trim($linkText)) == 0){
 				continue;
 			}
 			
 			//If the link is empty, skip it and don't
-			//add it to our $extractedLinks array
+			//add it to our $anchors array
 			if(strlen(trim($linkHref)) == 0){
 				continue;
 			}
@@ -223,7 +226,7 @@ class AnchorController extends Controller
 				continue;
 			}
 
-			//Add the link to our $extractedLinks array.
+			//Add the link to our $anchors array.
 			$anchors[] = array(
 				'text' => $linkText,
 				'url' => $linkHref,

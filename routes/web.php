@@ -23,7 +23,7 @@ Route::get('/anchors/create', 'AnchorController@create')->name('anchors.create')
 
 Route::post('/anchors', 'AnchorController@store');
 
-Route::get('/anchors/result/{q}', 'AnchorController@result');
+Route::get('/anchors/getrank/{q}', 'AnchorController@result');
 
-Route::get('/anchors/detail/{keyword}/{rank}', 'AnchorController@detail');
+Route::get('/anchors/getanchor/{keyword}/{rank}', 'AnchorController@detail');
 

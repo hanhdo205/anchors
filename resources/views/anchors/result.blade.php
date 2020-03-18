@@ -15,7 +15,7 @@
             <tr>
                 <th scope="row">{{ $key + 1 }}</th>
                 <td>{{ $value['title'] }}</td>
-                <td><a href="/anchors/detail/{{ $keyword }}/{{ $key }}">{{ $value['link'] }}</a></td>
+                <td><a href="/anchors/getanchor/{{ $id }}/{{ $key }}">{{ $value['link'] }}</a></td>
             </tr>
         @endforeach
         </tbody>
@@ -24,5 +24,5 @@
       const results = <?php echo json_encode($results) ;?>;
       console.table(results);
     </script>
-	* Using command: php artisan rank:result (x) to view Rank
+	* Using command: php artisan getRank (x) to view detail
 @endsection

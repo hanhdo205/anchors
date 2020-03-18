@@ -13,7 +13,6 @@
 					<label for="keyword">Anchor Research System</label>
 					<input type="text" name="keyword" class="form-control" id="keyword" placeholder="キーワードを登録してください。">
 				  </div>
-				  <input type="hidden" name="status" value="1">
 					@if ($errors->any())
 						<div class="alert alert-danger">
 							<ul>
