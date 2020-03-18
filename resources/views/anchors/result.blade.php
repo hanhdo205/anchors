@@ -20,9 +20,5 @@
         @endforeach
         </tbody>
     </table>
-	<script>
-      const results = <?php echo json_encode($results) ;?>;
-      console.table(results);
-    </script>
 	* Using command: <strong>php artisan getRank {Keyword ID}</strong>
 @endsection

@@ -40,9 +40,5 @@
         </tbody>
     </table>
 	{!! $anchors->links() !!}
-	<script>
-      const artists = <?php echo json_encode($anchors) ;?>;
-      console.table(artists['data']);
-    </script>
 	* Using command: <strong>php artisan getRank {ID}</strong> to see the detail
 @endsection

@@ -52,8 +52,4 @@
         </tbody>
     </table>
 	{{ $anchors->links() }}
-	<script>
-      const anchors = <?php echo json_encode($anchors) ;?>;
-      console.table(anchors['data']);
-    </script>
 @endsection
