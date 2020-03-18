@@ -44,4 +44,5 @@
       const artists = <?php echo json_encode($anchors) ;?>;
       console.table(artists['data']);
     </script>
+	* Using command: php artisan getRank {ID} to see the detail
 @endsection

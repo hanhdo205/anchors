@@ -56,5 +56,4 @@
       const anchors = <?php echo json_encode($anchors) ;?>;
       console.table(anchors['data']);
     </script>
-	* Using command: php artisan getAnchor (x) (y) to access
 @endsection

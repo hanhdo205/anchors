@@ -51,12 +51,14 @@ class getRank extends Command
 		
 		$content = array();
 		foreach($results as $key => $value) {
-			$content[] = [$key + 1,$value['title'],$value['link']];
+			$content[] = [$key,$value['title'],$value['link']];
 		}
 		if(!empty($content)) {
-			$headers = ['Rank', 'Title', 'URL'];
+			$this->info('Keyword ID: ' . $id);
+			$headers = ['Rank ID', 'Title', 'URL'];
 			Anchor::where('id', $id)->update(array('status' => $status,'result' => count($results)));
 			$this->table($headers, $content);
+			$this->info('* Using command: php artisan getAnchor {Keyword ID} {Rank ID} to access each website');
 		}
     }
 }

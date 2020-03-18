@@ -5,7 +5,7 @@
 	<table class="table">
         <thead class="thead-dark">
         <tr>
-            <th scope="col">Rank</th>
+            <th scope="col">Rank ID</th>
             <th scope="col">Title</th>
             <th scope="col">URL</th>
         </tr>
@@ -24,5 +24,5 @@
       const results = <?php echo json_encode($results) ;?>;
       console.table(results);
     </script>
-	* Using command: php artisan getRank (x) to view detail
+	* Using command: php artisan getRank {Keyword ID}
 @endsection
