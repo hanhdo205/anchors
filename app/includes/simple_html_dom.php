@@ -758,8 +758,8 @@ class simple_html_dom_node
 
                     if (is_object($debug_object)) {
                         $debug_object->debug_log(
-                                2,
-                                'testing node: '
+                            2,
+                            'testing node: '
                                 . $node->tag
                                 . ' for attribute: '
                                 . $att_name
@@ -767,33 +767,33 @@ class simple_html_dom_node
                                 . $att_val
                                 . ' where nodes value is: '
                                 . $nodeKeyValue
-                            );
+                        );
                     }
 
                     // If lowercase is set, do a case insensitive test of
                     // the value of the selector.
                     if ($lowercase) {
                         $check = $this->match(
-                                $att_expr,
-                                strtolower($att_val),
-                                strtolower($nodeKeyValue),
-                                $att_case_sensitivity
-                            );
+                            $att_expr,
+                            strtolower($att_val),
+                            strtolower($nodeKeyValue),
+                            $att_case_sensitivity
+                        );
                     } else {
                         $check = $this->match(
-                                $att_expr,
-                                $att_val,
-                                $nodeKeyValue,
-                                $att_case_sensitivity
-                            );
+                            $att_expr,
+                            $att_val,
+                            $nodeKeyValue,
+                            $att_case_sensitivity
+                        );
                     }
 
                     if (is_object($debug_object)) {
                         $debug_object->debug_log(
-                                2,
-                                'after match: '
+                            2,
+                            'after match: '
                                 . ($check ? 'true' : 'false')
-                            );
+                        );
                     }
 
                     if (!$check) {

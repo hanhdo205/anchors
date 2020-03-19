@@ -86,7 +86,7 @@ User-Agent
 */
  
 $html = str_get_html($data);
-echo str_replace("/images/branding/googlelogo/","https://www.google.co.jp/images/branding/googlelogo/",$html);
+echo str_replace("/images/branding/googlelogo/", "https://www.google.co.jp/images/branding/googlelogo/", $html);
  
 $result = [];
  

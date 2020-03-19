@@ -87,8 +87,8 @@ class AnchorController extends Controller
     public static function file_get_contents_curl($url)
     {
         $response = Http::withHeaders([
-			'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36',
-		])->get($url);
+            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36',
+        ])->get($url);
      
         return $response;
     }
@@ -106,7 +106,12 @@ class AnchorController extends Controller
         $keyword = DB::table('anchors')->where('id', $id)->value('keyword');
         
         //Obtain the first page html with the formated url
-        $data = self::file_get_contents_curl('https://www.google.co.jp/search?q='.urlencode(str_replace(' ', '+', $keyword)).'&start=0&gl=jp');
+        try {
+            $data = self::file_get_contents_curl('https://www.google.co.jp/search?q='.urlencode(str_replace(' ', '+', $keyword)).'&start=0&gl=jp');
+        } catch (\Exception $ex) {
+            \Log::error($ex);
+        }
+        
          
         /*
         create a simple_html_dom object from the retreived string
@@ -204,68 +209,6 @@ class AnchorController extends Controller
 
         //Array that will contain our extracted links.
         $anchors = [];
-
-        //Loop through the DOMNodeList.
-        //We can do this because the DOMNodeList object is traversable.
-        foreach ($links as $link) {
-
-            //Get the link text.
-            $linkText = self::innerHTML($link);
-            $linkType = 'Text';
-            
-            if (preg_match('/<img/', $linkText)) {
-                $linkType = 'Img';
-                $doc = new \DOMDocument();
-                @$doc->loadHTML($linkText);
-                $xpath = new \DOMXPath($doc);
-                $linkText = $xpath->evaluate("string(//img/@src)");
-            }
-            
-            //Get the link in the href attribute.
-            $linkHref = $link->getAttribute('href');
-
-            //If the text is empty, skip it and don't
-            //add it to our $anchors array
-            if (strlen(trim($linkText)) == 0) {
-                continue;
-            }
-            
-            //If the link is empty, skip it and don't
-            //add it to our $anchors array
-            if (strlen(trim($linkHref)) == 0) {
-                continue;
-            }
-
-            //Skip if it is a hashtag / anchor link.
-            if ($linkHref[0] == '#') {
-                continue;
-            }
-
-            //Add the link to our $anchors array.
-            $anchors[] = [
-                'text' => strip_tags($linkText),
-                'url' => $linkHref,
-                'type' => $linkType,
-            ];
-                        
-            // Get current page form url e.x. &page=1
-            $currentPage = LengthAwarePaginator::resolveCurrentPage();
-     
-            // Create a new Laravel collection from the array data
-            $itemCollection = collect($anchors);
-     
-            // Define how many items we want to be visible in each page
-            $perPage = 10;
-     
-            // Slice the collection to get the items to display in current page
-            $currentPageItems = $itemCollection->slice(($currentPage * $perPage) - $perPage, $perPage)->all();
-     
-            // Create our paginator and pass it to the view
-            $paginatedItems= new LengthAwarePaginator($currentPageItems, count($itemCollection), $perPage);
-     
-            // set url path for generted links
-            $paginatedItems->setPath($request->url());
-        }
         
         switch (true) {
             case (count($arr_access) == $rowresult):
@@ -277,7 +220,72 @@ class AnchorController extends Controller
         }
         
         Anchor::where('id', $id)->update(['status' => $rowstatus,'access' => $rowaccess]);
-        
+
+        //Loop through the DOMNodeList.
+        //We can do this because the DOMNodeList object is traversable.
+        if ($links->length > 1) {
+            foreach ($links as $link) {
+
+            //Get the link text.
+                $linkText = self::innerHTML($link);
+                $linkType = 'Text';
+            
+                if (preg_match('/<img/', $linkText)) {
+                    $linkType = 'Img';
+                    $doc = new \DOMDocument();
+                    @$doc->loadHTML($linkText);
+                    $xpath = new \DOMXPath($doc);
+                    $linkText = $xpath->evaluate("string(//img/@src)");
+                }
+            
+                //Get the link in the href attribute.
+                $linkHref = $link->getAttribute('href');
+
+                //If the text is empty, skip it and don't
+                //add it to our $anchors array
+                if (strlen(trim($linkText)) == 0) {
+                    continue;
+                }
+            
+                //If the link is empty, skip it and don't
+                //add it to our $anchors array
+                if (strlen(trim($linkHref)) == 0) {
+                    continue;
+                }
+
+                //Skip if it is a hashtag / anchor link.
+                if ($linkHref[0] == '#') {
+                    continue;
+                }
+
+                //Add the link to our $anchors array.
+                $anchors[] = [
+                'text' => strip_tags($linkText),
+                'url' => $linkHref,
+                'type' => $linkType,
+            ];
+                        
+                // Get current page form url e.x. &page=1
+                $currentPage = LengthAwarePaginator::resolveCurrentPage();
+     
+                // Create a new Laravel collection from the array data
+                $itemCollection = collect($anchors);
+     
+                // Define how many items we want to be visible in each page
+                $perPage = 10;
+     
+                // Slice the collection to get the items to display in current page
+                $currentPageItems = $itemCollection->slice(($currentPage * $perPage) - $perPage, $perPage)->all();
+     
+                // Create our paginator and pass it to the view
+                $paginatedItems= new LengthAwarePaginator($currentPageItems, count($itemCollection), $perPage);
+     
+                // set url path for generted links
+                $paginatedItems->setPath($request->url());
+            }
+        } else {
+            return view('anchors.error', ['result' => $result]);
+        }
         return view('anchors.detail', ['result' => $result,'rank' => $rank,'anchors' => $paginatedItems]);
     }
     public static function innerHTML($node)

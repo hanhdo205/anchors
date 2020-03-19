@@ -84,53 +84,62 @@ class getAnchor extends Command
 
         //Loop through the DOMNodeList.
         //We can do this because the DOMNodeList object is traversable.
-        foreach ($links as $link) {
+        if ($links->length > 1) {
+            foreach ($links as $link) {
 
-            //Get the link text.
-            $linkText = AnchorController::innerHTML($link);
-            $linkType = 'Text';
+                //Get the link text.
+                $linkText = AnchorController::innerHTML($link);
+                $linkType = 'Text';
             
-            if (preg_match('/<img/', $linkText)) {
-                $linkType = 'Img';
-                $doc = new \DOMDocument();
-                @$doc->loadHTML($linkText);
-                $xpath = new \DOMXPath($doc);
-                $linkText = $xpath->evaluate("string(//img/@src)");
-            }
+                if (preg_match('/<img/', $linkText)) {
+                    $linkType = 'Img';
+                    $doc = new \DOMDocument();
+                    @$doc->loadHTML($linkText);
+                    $xpath = new \DOMXPath($doc);
+                    $linkText = $xpath->evaluate("string(//img/@src)");
+                }
             
-            //Get the link in the href attribute.
-            $linkHref = $link->getAttribute('href');
+                //Get the link in the href attribute.
+                $linkHref = $link->getAttribute('href');
 
-            //If the text is empty, skip it and don't
-            //add it to our $anchors array
-            if (strlen(trim($linkText)) == 0) {
-                continue;
-            }
+                //If the text is empty, skip it and don't
+                //add it to our $anchors array
+                if (strlen(trim($linkText)) == 0) {
+                    continue;
+                }
             
-            //If the link is empty, skip it and don't
-            //add it to our $anchors array
-            if (strlen(trim($linkHref)) == 0) {
-                continue;
-            }
+                //If the link is empty, skip it and don't
+                //add it to our $anchors array
+                if (strlen(trim($linkHref)) == 0) {
+                    continue;
+                }
 
-            //Skip if it is a hashtag / anchor link.
-            if ($linkHref[0] == '#') {
-                continue;
-            }
+                //Skip if it is a hashtag / anchor link.
+                if ($linkHref[0] == '#') {
+                    continue;
+                }
 
-            //Add the link to our $anchors array.
-            $anchors[] = [
-                'text' => strip_tags($linkText),
-                'url' => $linkHref,
-                'type' => $linkType,
-            ];
-        }
-            
-        $headers = ['ID', 'Anchor Text', 'Anchor Type', 'Anchor URL'];
-        $content = [];
+                //Add the link to our $anchors array.
+                $anchors[] = [
+                    'text' => strip_tags($linkText),
+                    'url' => $linkHref,
+                    'type' => $linkType,
+                ];
+            }
         
-        foreach ($anchors as $key => $value) {
-            $content[] = [$key,$value['text'],$value['type'],$value['url']];
+            
+            $headers = ['ID', 'Anchor Text', 'Anchor Type', 'Anchor URL'];
+            $content = [];
+        
+            foreach ($anchors as $key => $value) {
+                $content[] = [$key,$value['text'],$value['type'],$value['url']];
+            }
+            $this->info('URL: ' . $result['link']);
+            $this->info('Title: ' . $result['title']);
+            $this->info('Description: ' . $result['description']);
+            $this->table($headers, $content);
+        } else {
+            $this->info('Can not get data from ' . $result['link']);
         }
         
         switch (true) {
@@ -143,10 +152,5 @@ class getAnchor extends Command
         }
         
         Anchor::where('id', $id)->update(['status' => $rowstatus,'access' => $rowaccess]);
-        
-        $this->info('URL: ' . $result['link']);
-        $this->info('Title: ' . $result['title']);
-        $this->info('Description: ' . $result['description']);
-        $this->table($headers, $content);
     }
 }
