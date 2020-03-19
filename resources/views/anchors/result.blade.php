@@ -12,7 +12,12 @@
         </thead>
         <tbody>
         @foreach($results as $key => $value)
-            <tr>
+			@if(in_array($key,$access))
+				@php ($class = 'class=table-active')
+			@else
+				@php ($class = '')
+			@endif
+            <tr {{ $class }}>
                 <th scope="row">{{ $key + 1 }}</th>
                 <td>{{ $value['title'] }}</td>
                 <td><a href="/anchors/getanchor/{{ $id }}/{{ $key }}">{{ $value['link'] }}</a></td>

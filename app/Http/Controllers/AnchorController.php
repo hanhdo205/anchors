@@ -158,14 +158,19 @@ class AnchorController extends Controller
     {
         $id = $request->q;
         $results = self::scrape($id);
-        $status = DB::table('anchors')->where('id', $id)->value('status');
+		$rows = DB::table('anchors')
+        ->select(['status', 'access'])
+        ->find($id);
+		$status = $rows->status;
         
         if ($status < 3) {
             $status = 2;
         }
+		$access = explode(',',$rows->access);
+		
         Anchor::where('id', $id)->update(['status' => $status,'result' => count($results)]);
         
-        return view('anchors.result', compact(['results','id']));
+        return view('anchors.result', compact(['results','id','access']));
     }
     
     /**
