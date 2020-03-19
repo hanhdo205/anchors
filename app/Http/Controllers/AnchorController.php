@@ -10,6 +10,8 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 use Illuminate\Support\Facades\DB;
 
+use Illuminate\Support\Facades\Http;
+
 class AnchorController extends Controller
 {
     /**
@@ -84,17 +86,11 @@ class AnchorController extends Controller
      */
     public static function file_get_contents_curl($url)
     {
-        $ch = curl_init();
+        $response = Http::withHeaders([
+			'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36',
+		])->get($url);
      
-        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36');
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_URL, $url);
-     
-        $data = curl_exec($ch);
-        curl_close($ch);
-     
-        return $data;
+        return $response;
     }
     
     
@@ -118,7 +114,7 @@ class AnchorController extends Controller
         file_get_contents_curl above, but it wouldn't change the default
         User-Agent
         */
-         
+     
         $html = str_get_html($data);
          
         $results = [];
