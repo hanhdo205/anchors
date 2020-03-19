@@ -167,6 +167,7 @@ class AnchorController extends Controller
             $status = 2;
         }
 		$access = explode(',',$rows->access);
+		$access = array_filter($access, 'strlen');
 		
         Anchor::where('id', $id)->update(['status' => $status,'result' => count($results)]);
         
