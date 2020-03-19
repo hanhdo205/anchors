@@ -143,7 +143,7 @@ class getAnchor extends Command
         }
         
         switch (true) {
-            case (count($arr_access) == $rowresult):
+            case (count($arr_access) >= $rowresult):
                 $rowstatus = 4;
                 break;
             default:
