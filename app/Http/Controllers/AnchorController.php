@@ -216,7 +216,7 @@ class AnchorController extends Controller
         $anchors = [];
         
         switch (true) {
-            case (count($arr_access) == $rowresult):
+            case (count($arr_access) >= $rowresult):
                 $rowstatus = 4;
                 break;
             default:

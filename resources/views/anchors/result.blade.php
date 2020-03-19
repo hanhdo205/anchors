@@ -12,7 +12,7 @@
         </thead>
         <tbody>
         @foreach($results as $key => $value)
-			@if(in_array($key,$access))
+			@if(!empty($access) && in_array($key,$access))
 				@php ($class = 'class=table-active')
 			@else
 				@php ($class = '')
