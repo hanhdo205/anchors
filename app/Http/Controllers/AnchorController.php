@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Anchor;
 
+use Config;
+
 use Illuminate\Http\Request;
 
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -30,7 +32,26 @@ class AnchorController extends Controller
 	public function anchorList()
     {
         $anchors = Anchor::orderByRaw('id DESC')->get();
-        return datatables()->of($anchors)
+		$anchor_arr = [];
+		foreach($anchors as $anchor) {
+			switch($anchor->status) {
+				case(MY_CRAWL_DONE):
+					$status = Config::get('constants.status.4');
+					break;
+				case(MY_CRAWL_ANCHOR_GENERATE):
+					$status = Config::get('constants.status.3');
+					break;
+				case(MY_CRAWL_URL_GENERATE):
+					$status = Config::get('constants.status.2');
+					break;
+				default:
+					$status = Config::get('constants.status.1');
+					break;
+			}
+			$keyword = ($status > 1) ? '<a href="/anchors/getrank/' . $anchor->keyword . '">' . $anchor->keyword . '</a>' : $anchor->keyword;
+			$anchor_arr[] = ['id' => $anchor->id, 'status' => $status, 'keyword' => $keyword, 'created_at' => date_format($anchor->created_at,'m/d/yy')];
+		}
+        return datatables()->of($anchor_arr)
             ->make(true);
     }
     

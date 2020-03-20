@@ -3,22 +3,7 @@
 <link  href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet">
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>  
 <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
-<!-- Style -->
-<style>
-body
-{
-    counter-reset: Count-Value;     
-}
-table
-{
-    border-collapse: separate;
-}
-tr td:first-child:before
-{
-  counter-increment: Count-Value;   
-  content: counter(Count-Value);
-}
-</style>
+
 @section('content')
 <div class="container">
 	<div class="row">
@@ -56,9 +41,11 @@ tr td:first-child:before
 			$('.data-table').DataTable({
 				   processing: true,
 				   serverSide: true,
+				   searching: false,
+				   order: [[ 0, "desc" ]],
 				   ajax: "{{ url('anchor-list') }}",
 				   columns: [
-							{ data: '', name: '' },
+							{ data: 'id', name: 'id' },
 							{ data: 'keyword', name: 'keyword' },
 							{ data: 'status', name: 'status' },
 							{ data: 'created_at', name: 'created_at' }
