@@ -126,7 +126,7 @@ class AnchorController extends Controller
     /**
      * Scrape Google search results.
      *
-     * @param $keyword
+     * @param $keyword id
      * @return array
      */
     public static function scrape($id)
@@ -175,7 +175,7 @@ class AnchorController extends Controller
 	/**
      * Scrape Google search results using serpstack API.
      *
-     * @param $keyword
+     * @param $keyword id
      * @return array
      */
     public static function serpstack($id)
