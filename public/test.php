@@ -16,7 +16,7 @@ curl_close($ch);
 
 $api_result = json_decode($json, true);
 echo "<textarea style='width: 1024px; height: 600px;'>";
-print_r($api_result);
+print_r($api_result['organic_results']);
 echo "</textarea>";
 
 // echo "Total results: ", $api_result['search_information']['total_results'], PHP_EOL;

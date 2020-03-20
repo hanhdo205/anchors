@@ -52,6 +52,7 @@ class getAnchor extends Command
         ->get();
 		$arr_access = [];
 		$getanchor = [];
+
 		foreach($rows as $row) {
 			$rank = $row->rank;
 			$rank_id = $row->rank_id;
@@ -65,14 +66,9 @@ class getAnchor extends Command
 				$this->info('Out of Range');
 				return;
 			}
-		
-			$results = AnchorController::scrape($id);
-			if(empty($results))
-				$results = AnchorController::serpstack($id);
-			$result = $results[$rank];
 			
 			//Get the page's HTML source using file_get_contents.
-			$html = AnchorController::file_get_contents_curl($result['link']);
+			$html = AnchorController::file_get_contents_curl($row->url);
 
 			//Instantiate the DOMDocument class.
 			$htmlDom = new \DOMDocument;
@@ -139,9 +135,9 @@ class getAnchor extends Command
 					$content[] = [$key,$value['text'],$value['type'],$value['url']];
 					$getanchor[] = ['getrank_id' => $rank_id, 'anchor_text' => $value['text'], 'anchor_type' => $value['type'], 'anchor_url' => $value['url']];
 				}
-				$this->info('URL: ' . $result['link']);
-				$this->info('Title: ' . $result['title']);
-				$this->info('Description: ' . $result['description']);
+				$this->info('URL: ' . $row->url);
+				$this->info('Title: ' . $row->title);
+				$this->info('Description: ' . $row->description);
 				$this->table($headers, $content);
 			} else {
 				$this->info('Can not get data from ' . $result['link']);
