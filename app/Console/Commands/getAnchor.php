@@ -67,6 +67,8 @@ class getAnchor extends Command
 			}
 		
 			$results = AnchorController::scrape($id);
+			if(empty($results))
+				$results = AnchorController::serpstack($id);
 			$result = $results[$rank];
 			
 			//Get the page's HTML source using file_get_contents.

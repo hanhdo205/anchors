@@ -48,6 +48,8 @@ class getRank extends Command
 		foreach($rows as $row) {
 			$id = $row->id;
 			$results = AnchorController::scrape($id);
+			if(empty($results))
+				$results = AnchorController::serpstack($id);
 			$content = [];
 			$getrank = [];
 			foreach ($results as $key => $value) {

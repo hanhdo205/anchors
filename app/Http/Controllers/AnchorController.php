@@ -172,6 +172,39 @@ class AnchorController extends Controller
         return $results;
     }
 	
+	/**
+     * Scrape Google search results using serpstack API.
+     *
+     * @param $keyword
+     * @return array
+     */
+    public static function serpstack($id)
+    {
+		$keyword = DB::table('anchors')->where('id', $id)->value('keyword');
+		$queryString = http_build_query([
+		  'access_key' => 'c06d8e2f37e9ad28c7baa29ffaacdfe6',
+		  'query' => $keyword,
+		  'gl' => 'jp',
+		  'hl' => 'jp',
+		]);
+
+		$ch = curl_init(sprintf('%s?%s', MY_SERPSTACK, $queryString));
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+		$json = curl_exec($ch);
+		curl_close($ch);
+
+		$api_result = json_decode($json, true);
+		
+		foreach ($api_result['organic_results'] as $g) {
+            $results[] = ['title' => $g['title'],
+                'link' => $g['url'],
+                'description' => $g['snippet']];
+        }
+		        
+        return $results;
+    }
+	
 	public static function innerHTML($node)
     {
         $ret = '';

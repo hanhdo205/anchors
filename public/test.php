@@ -1,18 +1,23 @@
 <?php
-// $queryString = http_build_query([
-  // 'access_key' => 'c06d8e2f37e9ad28c7baa29ffaacdfe6',
-  // 'query' => 'sample',
-  // 'gl' => 'jp'
-// ]);
+$queryString = http_build_query([
+  'access_key' => 'c06d8e2f37e9ad28c7baa29ffaacdfe6',
+  'query' => 'sample',
+  'gl' => 'jp',
+  'hl' => 'jp',
+]);
 
-// $ch = curl_init(sprintf('%s?%s', 'http://api.serpstack.com/search', $queryString));
-// curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+var_dump($queryString);
 
-// $json = curl_exec($ch);
-// curl_close($ch);
+$ch = curl_init(sprintf('%s?%s', 'http://api.serpstack.com/search', $queryString));
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-// $api_result = json_decode($json, true);
-// var_dump($api_result);
+$json = curl_exec($ch);
+curl_close($ch);
+
+$api_result = json_decode($json, true);
+echo "<textarea style='width: 1024px; height: 600px;'>";
+print_r($api_result);
+echo "</textarea>";
 
 // echo "Total results: ", $api_result['search_information']['total_results'], PHP_EOL;
 
@@ -86,7 +91,7 @@ User-Agent
 */
  
 $html = str_get_html($data);
-echo str_replace("/images/branding/googlelogo/", "https://www.google.co.jp/images/branding/googlelogo/", $html);
+//echo str_replace("/images/branding/googlelogo/", "https://www.google.co.jp/images/branding/googlelogo/", $html);
  
 $result = [];
  
