@@ -48,8 +48,7 @@ class AnchorController extends Controller
 					$status = Config::get('constants.status.1');
 					break;
 			}
-			$keyword = ($status > 1) ? '<a href="/anchors/getrank/' . $anchor->keyword . '">' . $anchor->keyword . '</a>' : $anchor->keyword;
-			$anchor_arr[] = ['id' => $anchor->id, 'status' => $status, 'keyword' => $keyword, 'created_at' => date_format($anchor->created_at,'m/d/yy')];
+			$anchor_arr[] = ['id' => $anchor->id, 'is_link' => $anchor->status, 'status' => $status, 'keyword' => $anchor->keyword, 'created_at' => date_format($anchor->created_at,'m/d/yy')];
 		}
         return datatables()->of($anchor_arr)
             ->make(true);

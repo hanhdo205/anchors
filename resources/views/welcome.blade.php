@@ -43,14 +43,24 @@
 				   serverSide: true,
 				   searching: false,
 				   order: [[ 0, "desc" ]],
+				   language:
+					{
+						 "url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Japanese.json"
+					},
 				   ajax: "{{ url('anchor-list') }}",
 				   columns: [
 							{ data: 'id', name: 'id' },
-							{ data: 'keyword', name: 'keyword' },
+							{ data: 'keyword', name: 'keyword',fnCreatedCell: function (nTd, sData, oData, iRow, iCol) {
+									if(oData.is_link > 1) {
+										$(nTd).html("<a href='/anchors/getrank/"+oData.keyword+"'>"+oData.keyword+"</a>");
+									}
+								}
+							},
 							{ data: 'status', name: 'status' },
 							{ data: 'created_at', name: 'created_at' }
 						 ]
 				});
+
 			 });
 		</script>
 		<!--* Using command: <strong>php artisan getRank</strong>-->
