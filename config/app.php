@@ -1,8 +1,8 @@
 <?php
 
 define('MY_CRAWL_TODO', 1);
-define('MY_CRAWL_URL_GENERATE', 2);
-define('MY_CRAWL_ANCHOR_GENERATE', 3);
+define('MY_CRAWL_ANCHOR_GENERATE', 2);
+define('MY_CRAWL_URL_GENERATE', 3);
 define('MY_CRAWL_DONE', 4);
 define('MY_CRAWL_INIT', 'https://www.google.co.jp/search?start=0&gl=jp&q=');
 

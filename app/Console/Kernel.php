@@ -29,6 +29,8 @@ class Kernel extends ConsoleKernel
                  ->everyMinute();
 		$schedule->command('getAnchor')
                  ->everyMinute();
+		//$schedule->command('getRank')->withoutOverlapping();
+		//$schedule->command('getAnchor')->withoutOverlapping();
     }
 
     /**

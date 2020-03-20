@@ -145,7 +145,7 @@ class AnchorController extends Controller
         */
      
         $html = str_get_html($data);
-         
+		         
         $results = [];
          
         foreach ($html->find('div.srg div.g') as $g) {
@@ -168,7 +168,7 @@ class AnchorController extends Controller
         
         //Cleans up the memory
         $html->clear();
-        
+		        
         return $results;
     }
 	
