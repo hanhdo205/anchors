@@ -1,8 +1,5 @@
 @extends('layouts.app')
-<!-- script -->
-<link  href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet">
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>  
-<script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+
 <!-- Style -->
 <style>
 body
@@ -41,7 +38,8 @@ tr td:first-child:before
 			</form>
 		</div>
     <div class="col-8">
-		<table class="table table-bordered data-table">
+		@if(isset($anchors[0]->id))
+		<table class="table">
 			<thead class="thead-dark">
 				<tr>
 					<th scope="col">ID</th>
@@ -50,24 +48,42 @@ tr td:first-child:before
 					<th scope="col">登録日</th>
 				</tr>
 			</thead>
+			<tbody>
+			@foreach($anchors as $anchor)
+				<tr>
+					<td></td>
+					<td>
+						@if($anchor->status > 1)
+							<a href="/anchors/getrank/{{$anchor->keyword}}">{{ $anchor->keyword }}</a>
+						@else
+							{{ $anchor->keyword }}
+						@endif
+					</td>
+					<td>@switch($anchor->status)
+							@case(4)
+								{{ Config::get('constants.status.4') }}
+								@break
+							@case(3)
+								{{ Config::get('constants.status.3') }}
+								@break
+							@case(2)
+								{{ Config::get('constants.status.2') }}
+								@break
+							@default
+								{{ Config::get('constants.status.1') }}
+								@break
+						@endswitch
+					</td>
+					<td>{{ date_format($anchor->created_at,'m/d/yy') }}</td>
+				</tr>
+			@endforeach
+			</tbody>
 		</table>
-		<script>
-		   jQuery(document).ready( function ($) {
-			$('.data-table').DataTable({
-				   processing: true,
-				   serverSide: true,
-				   ajax: "{{ url('anchor-list') }}",
-				   columns: [
-							{ data: '', name: '' },
-							{ data: 'keyword', name: 'keyword' },
-							{ data: 'status', name: 'status' },
-							{ data: 'created_at', name: 'created_at' }
-						 ]
-				});
-			 });
-		</script>
 		<!--* Using command: <strong>php artisan getRank</strong>-->
-		
+	@else
+		キーワードを登録してください。
+	@endif
+	{!! $anchors->links() !!}
     </div>
   </div>
 </div>

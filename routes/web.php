@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', 'AnchorController@index');
 
+Route::get('/anchor-list', 'AnchorController@anchorList'); 
+
 Route::post('/anchors', 'AnchorController@store');
 
 Route::get('/anchors/getrank/{q}', 'AnchorController@result');

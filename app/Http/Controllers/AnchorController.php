@@ -21,8 +21,17 @@ class AnchorController extends Controller
      */
     public function index()
     {
-        $anchors = Anchor::orderByRaw('id DESC')->paginate(10);
-        return view('welcome', compact('anchors', $anchors));
+        // $anchors = Anchor::orderByRaw('id DESC')->paginate(10);
+        
+        // return view('welcome', compact('anchors', $anchors));
+        return view('welcome');
+    }
+	
+	public function anchorList()
+    {
+        $anchors = Anchor::orderByRaw('id DESC')->get();
+        return datatables()->of($anchors)
+            ->make(true);
     }
     
     /**
