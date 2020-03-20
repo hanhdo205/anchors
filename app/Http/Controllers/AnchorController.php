@@ -182,13 +182,13 @@ class AnchorController extends Controller
     {
 		$keyword = DB::table('anchors')->where('id', $id)->value('keyword');
 		$queryString = http_build_query([
-		  'access_key' => 'c06d8e2f37e9ad28c7baa29ffaacdfe6',
+		  'access_key' => MY_SERPSTACK_KEY,
 		  'query' => $keyword,
 		  'gl' => 'jp',
 		  'hl' => 'jp',
 		]);
 
-		$ch = curl_init(sprintf('%s?%s', MY_SERPSTACK, $queryString));
+		$ch = curl_init(sprintf('%s?%s', MY_SERPSTACK_URL, $queryString));
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
 		$json = curl_exec($ch);

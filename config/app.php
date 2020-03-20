@@ -5,7 +5,8 @@ define('MY_CRAWL_ANCHOR_GENERATE', 2);
 define('MY_CRAWL_URL_GENERATE', 3);
 define('MY_CRAWL_DONE', 4);
 define('MY_CRAWL_INIT', 'https://www.google.co.jp/search?start=0&gl=jp&q=');
-define('MY_SERPSTACK', 'http://api.serpstack.com/search');
+define('MY_SERPSTACK_URL', 'http://api.serpstack.com/search');
+define('MY_SERPSTACK_KEY', 'c06d8e2f37e9ad28c7baa29ffaacdfe6');
 
 return [
 
