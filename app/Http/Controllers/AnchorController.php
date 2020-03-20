@@ -21,8 +21,8 @@ class AnchorController extends Controller
      */
     public function index()
     {
-        $anchors = Anchor::paginate(10);
-        return view('anchors.index', compact('anchors', $anchors));
+        $anchors = Anchor::orderByRaw('id DESC')->paginate(10);
+        return view('welcome', compact('anchors', $anchors));
     }
     
     /**
@@ -49,7 +49,7 @@ class AnchorController extends Controller
 
         Anchor::create($request->all());
 
-        return redirect('/anchors');
+        return redirect('/');
     }
     
     /**
@@ -102,11 +102,11 @@ class AnchorController extends Controller
      */
     public static function scrape($id)
     {
-        include(app_path() . '\includes\simple_html_dom.php');
+        include_once(app_path() . '\includes\simple_html_dom.php');
         $keyword = DB::table('anchors')->where('id', $id)->value('keyword');
         
         //Obtain the first page html with the formated url
-        $data = self::file_get_contents_curl('https://www.google.co.jp/search?q='.urlencode(str_replace(' ', '+', $keyword)).'&start=0&gl=jp');
+        $data = self::file_get_contents_curl(MY_CRAWL_INIT . urlencode(str_replace(' ', '+', $keyword)));
          
         /*
         create a simple_html_dom object from the retreived string
@@ -142,6 +142,15 @@ class AnchorController extends Controller
         
         return $results;
     }
+	
+	public static function innerHTML($node)
+    {
+        $ret = '';
+        foreach ($node->childNodes as $node) {
+            $ret .= $node->ownerDocument->saveHTML($node);
+        }
+        return $ret;
+    }
     
     /**
      * Scrape Google search results.
@@ -151,22 +160,27 @@ class AnchorController extends Controller
      */
     public function result(Request $request)
     {
-        $id = $request->q;
-        $results = self::scrape($id);
-		$rows = DB::table('anchors')
-        ->select(['status', 'access'])
-        ->find($id);
-		$status = $rows->status;
-        
-        if ($status < 3) {
-            $status = 2;
-        }
-		$access = explode(',',$rows->access);
-		$access = array_filter($access, 'strlen');
+        $keyword = $request->q;
 		
-        Anchor::where('id', $id)->update(['status' => $status,'result' => count($results)]);
-        
-        return view('anchors.result', compact(['results','id','access']));
+		$rows = DB::table('getrank')
+            ->join('anchors', 'getrank.anchors_id', '=', 'anchors.id')
+			->where('anchors.keyword', $keyword)
+            ->select('getrank.anchors_id', 'getrank.rank_id', 'getrank.title', 'getrank.url', 'anchors.status')
+            ->get();
+
+		$results = [];
+		
+		if(!$rows->count()) 
+		return abort(404);
+				
+		$status = $rows[0]->status;
+
+		foreach($rows as $row) {
+			$results[] = ['title' => $row->title,
+                'link' => $row->url];
+		}
+		        
+        return view('anchors.result', compact(['results','keyword','status']));
     }
     
     /**
@@ -177,124 +191,54 @@ class AnchorController extends Controller
      */
     public function detail(Request $request)
     {
-        $id = $request->keyword;
+        $keyword = $request->keyword;
         $rank = $request->rank;
+				
+		$rows = DB::table('getanchor')
+            ->join('getrank', 'getanchor.getrank_id', '=', 'getrank.rank_id')
+            ->join('anchors', 'getrank.anchors_id', '=', 'anchors.id')
+			->where('anchors.keyword', $keyword)
+			->where('getrank.rank', $rank)
+            ->select('getanchor.*', 'getrank.url', 'getrank.title', 'getrank.description', 'anchors.status')
+            ->get();
+			
+		if(!$rows->count()) 
+		return abort(404);
         
-        $rows = DB::table('anchors')
-        ->select(['status', 'result', 'access'])
-        ->find($id);
-        
-        $arr_access = explode(',', $rows->access);
-        if (!in_array($rank, $arr_access)) {
-            array_push($arr_access, $rank);
-        }
-        $arr_access = array_filter($arr_access, 'strlen');
-        $rowaccess = implode(',', $arr_access);
-        $rowstatus = $rows->status;
-        $rowresult = $rows->result;
-        
-        $results = self::scrape($id);
-        $result = $results[$rank];
-        
-        //Get the page's HTML source using file_get_contents.
-        $html = self::file_get_contents_curl($result['link']);
-
-        //Instantiate the DOMDocument class.
-        $htmlDom = new \DOMDocument;
-
-        //Parse the HTML of the page using DOMDocument::loadHTML
-        @$htmlDom->loadHTML($html);
-
-        //Extract the links from the HTML.
-        $links = $htmlDom->getElementsByTagName('a');
-
         //Array that will contain our extracted links.
         $anchors = [];
-        
-        switch (true) {
-            case (count($arr_access) >= $rowresult):
-                $rowstatus = 4;
-                break;
-            default:
-                $rowstatus = 3;
-                break;
-        }
-        
-        Anchor::where('id', $id)->update(['status' => $rowstatus,'access' => $rowaccess]);
+		$result = ['link' => $rows[0]->url,'title' => $rows[0]->title,'description' => $rows[0]->description,];
 
         //Loop through the DOMNodeList.
         //We can do this because the DOMNodeList object is traversable.
-        if ($links->length > 1) {
-            foreach ($links as $link) {
-
-            //Get the link text.
-                $linkText = self::innerHTML($link);
-                $linkType = 'Text';
-            
-                if (preg_match('/<img/', $linkText)) {
-                    $linkType = 'Img';
-                    $doc = new \DOMDocument();
-                    @$doc->loadHTML($linkText);
-                    $xpath = new \DOMXPath($doc);
-                    $linkText = $xpath->evaluate("string(//img/@src)");
-                }
-            
-                //Get the link in the href attribute.
-                $linkHref = $link->getAttribute('href');
-
-                //If the text is empty, skip it and don't
-                //add it to our $anchors array
-                if (strlen(trim($linkText)) == 0) {
-                    continue;
-                }
-            
-                //If the link is empty, skip it and don't
-                //add it to our $anchors array
-                if (strlen(trim($linkHref)) == 0) {
-                    continue;
-                }
-
-                //Skip if it is a hashtag / anchor link.
-                if ($linkHref[0] == '#') {
-                    continue;
-                }
-
-                //Add the link to our $anchors array.
-                $anchors[] = [
-                'text' => strip_tags($linkText),
-                'url' => $linkHref,
-                'type' => $linkType,
-            ];
-                        
-                // Get current page form url e.x. &page=1
-                $currentPage = LengthAwarePaginator::resolveCurrentPage();
-     
-                // Create a new Laravel collection from the array data
-                $itemCollection = collect($anchors);
-     
-                // Define how many items we want to be visible in each page
-                $perPage = 10;
-     
-                // Slice the collection to get the items to display in current page
-                $currentPageItems = $itemCollection->slice(($currentPage * $perPage) - $perPage, $perPage)->all();
-     
-                // Create our paginator and pass it to the view
-                $paginatedItems= new LengthAwarePaginator($currentPageItems, count($itemCollection), $perPage);
-     
-                // set url path for generted links
-                $paginatedItems->setPath($request->url());
-            }
-        } else {
-            return view('anchors.error', ['result' => $result]);
-        }
+		foreach ($rows as $row) {
+		
+			//Add the link to our $anchors array.
+			$anchors[] = [
+				'text' => $row->anchor_text,
+				'url' => $row->anchor_url,
+				'type' => $row->anchor_type,
+			];
+					
+			// Get current page form url e.x. &page=1
+			$currentPage = LengthAwarePaginator::resolveCurrentPage();
+ 
+			// Create a new Laravel collection from the array data
+			$itemCollection = collect($anchors);
+ 
+			// Define how many items we want to be visible in each page
+			$perPage = 10;
+ 
+			// Slice the collection to get the items to display in current page
+			$currentPageItems = $itemCollection->slice(($currentPage * $perPage) - $perPage, $perPage)->all();
+ 
+			// Create our paginator and pass it to the view
+			$paginatedItems= new LengthAwarePaginator($currentPageItems, count($itemCollection), $perPage);
+ 
+			// set url path for generted links
+			$paginatedItems->setPath($request->url());
+		}
+        
         return view('anchors.detail', ['result' => $result,'rank' => $rank,'anchors' => $paginatedItems]);
-    }
-    public static function innerHTML($node)
-    {
-        $ret = '';
-        foreach ($node->childNodes as $node) {
-            $ret .= $node->ownerDocument->saveHTML($node);
-        }
-        return $ret;
     }
 }

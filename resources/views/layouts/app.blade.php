@@ -24,10 +24,7 @@
 	<div class="container">
 		<ul class="nav justify-content-end">
 			<li class="nav-item">
-				<a class="nav-link" href="{{ URL::route('anchors.create') }}">Add Anchor</a>
-			</li>
-			<li class="nav-item">
-				<a class="nav-link" href="{{ URL::route('anchors') }}">Anchor List</a>
+				<a class="nav-link" href="/">Home</a>
 			</li>
 		</ul>
 		<div id="app">

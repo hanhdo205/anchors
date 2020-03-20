@@ -17,7 +17,7 @@ class getAnchor extends Command
      *
      * @var string
      */
-    protected $signature = 'getAnchor {keyword} {rank}';
+    protected $signature = 'getAnchor';
 
     /**
      * The console command description.
@@ -43,114 +43,119 @@ class getAnchor extends Command
      */
     public function handle()
     {
-        $rank = $this->argument('rank');
-        $id = $this->argument('keyword');
-        
-        $rows = DB::table('anchors')
-        ->select(['status', 'result', 'access'])
-        ->find($id);
-        
-        $arr_access = explode(',', $rows->access);
-        if (!in_array($rank, $arr_access)) {
-            array_push($arr_access, $rank);
-        }
-        $arr_access = array_filter($arr_access, 'strlen');
-        $rowaccess = implode(',', $arr_access);
-        $rowstatus = $rows->status;
-        $rowresult = $rows->result;
-        
-        if ($rowresult && $rank >= $rowresult) {
-            $this->info('Out of Range');
-            return;
-        }
-    
-        $results = AnchorController::scrape($id);
-        $result = $results[$rank];
-        
-        //Get the page's HTML source using file_get_contents.
-        $html = AnchorController::file_get_contents_curl($result['link']);
+        $rows = DB::table('getrank')
+        ->join('anchors', function($join)
+        {
+            $join->on('getrank.anchors_id', '=', 'anchors.id')
+                 ->where('anchors.status', MY_CRAWL_URL_GENERATE);
+        })
+        ->get();
+		$arr_access = [];
+		$getanchor = [];
+		foreach($rows as $row) {
+			$rank = $row->rank;
+			$rank_id = $row->rank_id;
+			$id = $row->anchors_id;
 
-        //Instantiate the DOMDocument class.
-        $htmlDom = new \DOMDocument;
+			$arr_access[] = $rank;
+			$rowstatus = $row->status;
+			$rowresult = $row->result;
+			
+			if ($rowresult && $rank >= $rowresult) {
+				$this->info('Out of Range');
+				return;
+			}
+		
+			$results = AnchorController::scrape($id);
+			$result = $results[$rank];
+			
+			//Get the page's HTML source using file_get_contents.
+			$html = AnchorController::file_get_contents_curl($result['link']);
 
-        //Parse the HTML of the page using DOMDocument::loadHTML
-        @$htmlDom->loadHTML($html);
+			//Instantiate the DOMDocument class.
+			$htmlDom = new \DOMDocument;
 
-        //Extract the links from the HTML.
-        $links = $htmlDom->getElementsByTagName('a');
+			//Parse the HTML of the page using DOMDocument::loadHTML
+			@$htmlDom->loadHTML($html);
 
-        //Array that will contain our extracted links.
-        $anchors = [];
+			//Extract the links from the HTML.
+			$links = $htmlDom->getElementsByTagName('a');
 
-        //Loop through the DOMNodeList.
-        //We can do this because the DOMNodeList object is traversable.
-        if ($links->length > 1) {
-            foreach ($links as $link) {
+			//Array that will contain our extracted links.
+			$anchors = [];
 
-                //Get the link text.
-                $linkText = AnchorController::innerHTML($link);
-                $linkType = 'Text';
-            
-                if (preg_match('/<img/', $linkText)) {
-                    $linkType = 'Img';
-                    $doc = new \DOMDocument();
-                    @$doc->loadHTML($linkText);
-                    $xpath = new \DOMXPath($doc);
-                    $linkText = $xpath->evaluate("string(//img/@src)");
-                }
-            
-                //Get the link in the href attribute.
-                $linkHref = $link->getAttribute('href');
+			//Loop through the DOMNodeList.
+			//We can do this because the DOMNodeList object is traversable.
+			if ($links->length > 1) {
+				foreach ($links as $link) {
 
-                //If the text is empty, skip it and don't
-                //add it to our $anchors array
-                if (strlen(trim($linkText)) == 0) {
-                    continue;
-                }
-            
-                //If the link is empty, skip it and don't
-                //add it to our $anchors array
-                if (strlen(trim($linkHref)) == 0) {
-                    continue;
-                }
+					//Get the link text.
+					$linkText = AnchorController::innerHTML($link);
+					$linkType = 'Text';
+				
+					if (preg_match('/<img/', $linkText)) {
+						$linkType = 'Img';
+						$doc = new \DOMDocument();
+						@$doc->loadHTML($linkText);
+						$xpath = new \DOMXPath($doc);
+						$linkText = $xpath->evaluate("string(//img/@src)");
+					}
+				
+					//Get the link in the href attribute.
+					$linkHref = $link->getAttribute('href');
 
-                //Skip if it is a hashtag / anchor link.
-                if ($linkHref[0] == '#') {
-                    continue;
-                }
+					//If the text is empty, skip it and don't
+					//add it to our $anchors array
+					if (strlen(trim($linkText)) == 0) {
+						continue;
+					}
+				
+					//If the link is empty, skip it and don't
+					//add it to our $anchors array
+					if (strlen(trim($linkHref)) == 0) {
+						continue;
+					}
 
-                //Add the link to our $anchors array.
-                $anchors[] = [
-                    'text' => strip_tags($linkText),
-                    'url' => $linkHref,
-                    'type' => $linkType,
-                ];
-            }
-        
-            
-            $headers = ['ID', 'Anchor Text', 'Anchor Type', 'Anchor URL'];
-            $content = [];
-        
-            foreach ($anchors as $key => $value) {
-                $content[] = [$key,$value['text'],$value['type'],$value['url']];
-            }
-            $this->info('URL: ' . $result['link']);
-            $this->info('Title: ' . $result['title']);
-            $this->info('Description: ' . $result['description']);
-            $this->table($headers, $content);
-        } else {
-            $this->info('Can not get data from ' . $result['link']);
-        }
-        
-        switch (true) {
-            case (count($arr_access) >= $rowresult):
-                $rowstatus = 4;
-                break;
-            default:
-                $rowstatus = 3;
-                break;
-        }
-        
-        Anchor::where('id', $id)->update(['status' => $rowstatus,'access' => $rowaccess]);
+					//Skip if it is a hashtag / anchor link.
+					if ($linkHref[0] == '#') {
+						continue;
+					}
+
+					//Add the link to our $anchors array.
+					$anchors[] = [
+						'text' => strip_tags($linkText),
+						'url' => $linkHref,
+						'type' => $linkType,
+					];
+				}
+			
+				
+				$headers = ['ID', 'Anchor Text', 'Anchor Type', 'Anchor URL'];
+				$content = [];
+			
+				foreach ($anchors as $key => $value) {
+					$content[] = [$key,$value['text'],$value['type'],$value['url']];
+					$getanchor[] = ['getrank_id' => $rank_id, 'anchor_text' => $value['text'], 'anchor_type' => $value['type'], 'anchor_url' => $value['url']];
+				}
+				$this->info('URL: ' . $result['link']);
+				$this->info('Title: ' . $result['title']);
+				$this->info('Description: ' . $result['description']);
+				$this->table($headers, $content);
+			} else {
+				$this->info('Can not get data from ' . $result['link']);
+			}
+			
+			switch (true) {
+				case (count($arr_access) >= $rowresult):
+					$rowstatus = MY_CRAWL_DONE;
+					break;
+				default:
+					$rowstatus = MY_CRAWL_ANCHOR_GENERATE;
+					break;
+			}
+			
+			Anchor::where('id', $id)->update(['status' => $rowstatus,'access' => implode(',',$arr_access)]);
+		}
+		DB::table('getanchor')->insert($getanchor);
     }
 }

@@ -17,7 +17,7 @@ class getRank extends Command
      *
      * @var string
      */
-    protected $signature = 'getRank {rank}';
+    protected $signature = 'getRank';
 
     /**
      * The console command description.
@@ -43,24 +43,27 @@ class getRank extends Command
      */
     public function handle()
     {
-        $id = $this->argument('rank');
-        $results = AnchorController::scrape($id);
-        $status = DB::table('anchors')->where('id', $id)->value('status');
-        
-        if ($status < 3) {
-            $status = 2;
-        }
-        
-        $content = [];
-        foreach ($results as $key => $value) {
-            $content[] = [$key,$value['title'],$value['link']];
-        }
-        if (!empty($content)) {
-            $this->info('Keyword ID: ' . $id);
-            $headers = ['Rank ID', 'Title', 'URL'];
-            Anchor::where('id', $id)->update(['status' => $status,'result' => count($results)]);
-            $this->table($headers, $content);
-            $this->info('* Using command: php artisan getAnchor {Keyword ID} {Rank ID} to access each website');
-        }
+        $rows = DB::table('anchors')->where('status', MY_CRAWL_TODO)->get();
+		
+		foreach($rows as $row) {
+			$id = $row->id;
+			$results = AnchorController::scrape($id);
+			$content = [];
+			$getrank = [];
+			foreach ($results as $key => $value) {
+				$content[] = [$key,$value['title'],$value['link']];
+				$getrank[] = ['anchors_id' => $id, 'rank' => $key, 'title' => $value['title'], 'description' => $value['description'], 'url' => $value['link']];
+			}
+			if (!empty($content)) {
+				$this->info('Keyword ID: ' . $id);
+				$headers = ['Rank ID', 'Title', 'URL'];
+				Anchor::where('id', $id)->update(['status' => MY_CRAWL_URL_GENERATE,'result' => count($results)]);
+				// Store search result into getrank table
+				DB::table('getrank')->insert($getrank);
+				
+				$this->table($headers, $content);
+				$this->info('* Using command: php artisan getAnchor to access each website');
+			}
+		}
     }
 }

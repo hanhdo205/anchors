@@ -1,80 +1,91 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+@extends('layouts.app')
 
-        <title>Anchor Research</title>
+<!-- Style -->
+<style>
+body
+{
+    counter-reset: Count-Value;     
+}
+table
+{
+    border-collapse: separate;
+}
+tr td:first-child:before
+{
+  counter-increment: Count-Value;   
+  content: counter(Count-Value);
+}
+</style>
+@section('content')
+<div class="container">
+	<div class="row">
+		<div class="col-4">
+			<form action="/anchors" method="POST" role="form">
+				@csrf <!-- {{ csrf_field() }} -->
+				<div class="form-group">
+					<textarea id="keyword" name="keyword" class="form-control" rows="4" cols="50"  placeholder="キーワードを登録してください。" autofocus="autofocus"></textarea>
+				</div>
+					@if ($errors->any())
+						<div class="alert alert-danger">
+							<ul>
+								@foreach ($errors->all() as $error)
+									<li>{{ $error }}</li>
+								@endforeach
+							</ul>
+						</div>
+					@endif
+			  <button type="submit" class="btn btn-primary">登録</button>
+			</form>
+		</div>
+    <div class="col-8">
+		@if(isset($anchors[0]->id))
+		<table class="table">
+			<thead class="thead-dark">
+				<tr>
+					<th scope="col">ID</th>
+					<th scope="col">キーワード</th>
+					<th scope="col">ステータス</th>
+					<th scope="col">登録日</th>
+				</tr>
+			</thead>
+			<tbody>
+			@foreach($anchors as $anchor)
+				<tr>
+					<td></td>
+					<td>
+						@if($anchor->status > 1)
+							<a href="/anchors/getrank/{{$anchor->keyword}}">{{ $anchor->keyword }}</a>
+						@else
+							{{ $anchor->keyword }}
+						@endif
+					</td>
+					<td>@switch($anchor->status)
+							@case(4)
+								{{ Config::get('constants.status.4') }}
+								@break
+							@case(3)
+								{{ Config::get('constants.status.3') }}
+								@break
+							@case(2)
+								{{ Config::get('constants.status.2') }}
+								@break
+							@default
+								{{ Config::get('constants.status.1') }}
+								@break
+						@endswitch
+					</td>
+					<td>{{ date_format($anchor->created_at,'m/d/yy') }}</td>
+				</tr>
+			@endforeach
+			</tbody>
+		</table>
+		<!--* Using command: <strong>php artisan getRank</strong>-->
+	@else
+		キーワードを登録してください。
+	@endif
+	{!! $anchors->links() !!}
+    </div>
+  </div>
+</div>
 
-        <!-- Fonts -->
-        <link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet">
-
-        <!-- Styles -->
-        <style>
-            html, body {
-                background-color: #fff;
-                color: #636b6f;
-                font-family: 'Nunito', sans-serif;
-                font-weight: 200;
-                height: 100vh;
-                margin: 0;
-            }
-
-            .full-height {
-                height: 100vh;
-            }
-
-            .flex-center {
-                align-items: center;
-                display: flex;
-                justify-content: center;
-            }
-
-            .position-ref {
-                position: relative;
-            }
-
-            .top-right {
-                position: absolute;
-                right: 10px;
-                top: 18px;
-            }
-
-            .content {
-                text-align: center;
-            }
-
-            .title {
-                font-size: 84px;
-            }
-
-            .links > a {
-                color: #636b6f;
-                padding: 0 25px;
-                font-size: 13px;
-                font-weight: 600;
-                letter-spacing: .1rem;
-                text-decoration: none;
-                text-transform: uppercase;
-            }
-
-            .m-b-md {
-                margin-bottom: 30px;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="flex-center position-ref full-height">
-            <div class="content">
-                <div class="title m-b-md">
-                    Anchor Research
-                </div>
-
-                <div class="links">
-                    <a class="nav-link" href="{{ URL::route('anchors.create') }}">Add Anchor</a>
-                    <a class="nav-link" href="{{ URL::route('anchors') }}">Anchor List</a>
-                </div>
-            </div>
-        </div>
-    </body>
-</html>
+@endsection

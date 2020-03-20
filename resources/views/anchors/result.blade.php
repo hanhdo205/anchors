@@ -12,18 +12,19 @@
         </thead>
         <tbody>
         @foreach($results as $key => $value)
-			@if(!empty($access) && in_array($key,$access))
-				@php ($class = 'class=table-active')
-			@else
-				@php ($class = '')
-			@endif
-            <tr {{ $class }}>
+            <tr>
                 <th scope="row">{{ $key + 1 }}</th>
                 <td>{{ $value['title'] }}</td>
-                <td><a href="/anchors/getanchor/{{ $id }}/{{ $key }}">{{ $value['link'] }}</a></td>
+                <td>
+					@if($status == 4)
+						<a href="/anchors/getanchor/{{ $keyword }}/{{ $key }}">{{ $value['link'] }}</a>
+					@else
+						{{ $value['link'] }}
+					@endif
+				</td>
             </tr>
         @endforeach
         </tbody>
     </table>
-	* Using command: <strong>php artisan getRank {Keyword ID}</strong>
+	<!--* Using command: <strong>php artisan getAnchor</strong>-->
 @endsection

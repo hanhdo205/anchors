@@ -13,13 +13,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
-Route::get('/anchors', 'AnchorController@index')->name('anchors');
-
-Route::get('/anchors/create', 'AnchorController@create')->name('anchors.create');
+Route::get('/', 'AnchorController@index');
 
 Route::post('/anchors', 'AnchorController@store');
 
