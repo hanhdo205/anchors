@@ -1,13 +1,5 @@
 <?php
 
-define('MY_CRAWL_TODO', 1);
-define('MY_CRAWL_ANCHOR_GENERATE', 2);
-define('MY_CRAWL_URL_GENERATE', 3);
-define('MY_CRAWL_DONE', 4);
-define('MY_CRAWL_INIT', 'https://www.google.co.jp/search?start=0&gl=jp&q=');
-define('MY_SERPSTACK_URL', 'http://api.serpstack.com/search');
-define('MY_SERPSTACK_KEY', 'c06d8e2f37e9ad28c7baa29ffaacdfe6');
-
 return [
 
     /*
@@ -169,7 +161,7 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
-		
+        
 
         /*
          * Package Service Providers...
@@ -183,7 +175,7 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-		Yajra\Datatables\DatatablesServiceProvider::class,
+        Yajra\Datatables\DatatablesServiceProvider::class,
 
     ],
 
@@ -236,7 +228,7 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
-		'Datatables' => Yajra\Datatables\Facades\Datatables::class,
+        'Datatables' => Yajra\Datatables\Facades\Datatables::class,
 
     ],
 

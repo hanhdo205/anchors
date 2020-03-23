@@ -28,28 +28,31 @@ class AnchorController extends Controller
         // return view('welcome', compact('anchors', $anchors));
         return view('welcome');
     }
-	
-	public function anchorList()
+    
+    public function anchorList()
     {
         $anchors = Anchor::orderByRaw('id DESC')->get();
-		$anchor_arr = [];
-		foreach($anchors as $anchor) {
-			switch($anchor->status) {
-				case(MY_CRAWL_DONE):
-					$status = Config::get('constants.status.4');
-					break;
-				case(MY_CRAWL_ANCHOR_GENERATE):
-					$status = Config::get('constants.status.3');
-					break;
-				case(MY_CRAWL_URL_GENERATE):
-					$status = Config::get('constants.status.2');
-					break;
-				default:
-					$status = Config::get('constants.status.1');
-					break;
-			}
-			$anchor_arr[] = ['id' => $anchor->id, 'is_link' => $anchor->status, 'status' => $status, 'keyword' => $anchor->keyword, 'created_at' => date_format($anchor->created_at,'m/d/yy')];
-		}
+        $anchor_arr = [];
+        foreach ($anchors as $anchor) {
+            switch ($anchor->status) {
+                case(MY_CRAWL_NO_RESULT):
+                    $status = Config::get('constants.status.5');
+                    break;
+                case(MY_CRAWL_DONE):
+                    $status = Config::get('constants.status.4');
+                    break;
+                case(MY_CRAWL_ANCHOR_GENERATE):
+                    $status = Config::get('constants.status.3');
+                    break;
+                case(MY_CRAWL_URL_GENERATE):
+                    $status = Config::get('constants.status.2');
+                    break;
+                default:
+                    $status = Config::get('constants.status.1');
+                    break;
+            }
+            $anchor_arr[] = ['id' => $anchor->id, 'is_link' => $anchor->status, 'status' => $status, 'keyword' => $anchor->keyword, 'created_at' => date_format($anchor->created_at, 'm/d/yy')];
+        }
         return datatables()->of($anchor_arr)
             ->make(true);
     }
@@ -73,10 +76,14 @@ class AnchorController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'keyword' => 'required|unique:anchors',
+            'keyword' => 'required',
         ]);
-
-        Anchor::create($request->all());
+        
+        $keywords = $request->keyword;
+        $lines = explode(PHP_EOL, $keywords);
+        foreach ($lines as $line) {
+            DB::table('anchors')->insert(['keyword' => $line]);
+        }
 
         return redirect('/');
     }
@@ -117,7 +124,7 @@ class AnchorController extends Controller
     {
         $response = Http::withHeaders([
             'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36',
-        ])->get($url);
+        ])->retry(3, 100)->get($url);
      
         return $response;
     }
@@ -145,7 +152,7 @@ class AnchorController extends Controller
         */
      
         $html = str_get_html($data);
-		         
+                 
         $results = [];
          
         foreach ($html->find('div.srg div.g') as $g) {
@@ -169,11 +176,11 @@ class AnchorController extends Controller
         
         //Cleans up the memory
         $html->clear();
-		        
+                
         return $results;
     }
-	
-	/**
+    
+    /**
      * Scrape Google search results using serpstack API.
      *
      * @param $keyword id
@@ -181,32 +188,35 @@ class AnchorController extends Controller
      */
     public static function serpstack($id)
     {
-		$keyword = DB::table('anchors')->where('id', $id)->value('keyword');
-		$queryString = http_build_query([
-		  'access_key' => MY_SERPSTACK_KEY,
-		  'query' => $keyword,
-		  'gl' => 'jp',
-		  'hl' => 'jp',
-		]);
+        $keyword = DB::table('anchors')->where('id', $id)->value('keyword');
+        $queryString = http_build_query([
+          'access_key' => MY_SERPSTACK_KEY,
+          'query' => $keyword,
+          'gl' => 'jp',
+          'hl' => 'jp',
+        ]);
 
-		$ch = curl_init(sprintf('%s?%s', MY_SERPSTACK_URL, $queryString));
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $ch = curl_init(sprintf('%s?%s', MY_SERPSTACK_URL, $queryString));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-		$json = curl_exec($ch);
-		curl_close($ch);
+        $json = curl_exec($ch);
+        curl_close($ch);
 
-		$api_result = json_decode($json, true);
-		
-		foreach ($api_result['organic_results'] as $g) {
-            $results[] = ['title' => $g['title'],
-                'link' => $g['url'],
-                'description' => $g['snippet']];
+        $api_result = json_decode($json, true);
+        $results = [];
+        
+        if (isset($api_result['request']) && $api_result['request']['success']) {
+            foreach ($api_result['organic_results'] as $g) {
+                $results[] = ['title' => $g['title'],
+                    'link' => $g['url'],
+                    'description' => $g['snippet']];
+            }
         }
-		        
+                
         return $results;
     }
-	
-	public static function innerHTML($node)
+    
+    public static function innerHTML($node)
     {
         $ret = '';
         foreach ($node->childNodes as $node) {
@@ -223,27 +233,28 @@ class AnchorController extends Controller
      */
     public function result(Request $request)
     {
-        $keyword = $request->q;
-		
-		$rows = DB::table('getrank')
+        $id = $request->q;
+        
+        $rows = DB::table('getrank')
             ->join('anchors', 'getrank.anchors_id', '=', 'anchors.id')
-			->where('anchors.keyword', $keyword)
+            ->where('anchors.id', $id)
             ->select('getrank.anchors_id', 'getrank.rank_id', 'getrank.title', 'getrank.url', 'anchors.status')
             ->get();
 
-		$results = [];
-		
-		if(!$rows->count()) 
-		return abort(404);
-				
-		$status = $rows[0]->status;
+        $results = [];
+        
+        if (!$rows->count()) {
+            return abort(404);
+        }
+                
+        $status = $rows[0]->status;
 
-		foreach($rows as $row) {
-			$results[] = ['title' => $row->title,
+        foreach ($rows as $row) {
+            $results[] = ['title' => $row->title,
                 'link' => $row->url];
-		}
-		        
-        return view('anchors.result', compact(['results','keyword','status']));
+        }
+                
+        return view('anchors.result', compact(['results','id','status']));
     }
     
     /**
@@ -254,53 +265,54 @@ class AnchorController extends Controller
      */
     public function detail(Request $request)
     {
-        $keyword = $request->keyword;
+        $id = $request->id;
         $rank = $request->rank;
-				
-		$rows = DB::table('getanchor')
+                
+        $rows = DB::table('getanchor')
             ->join('getrank', 'getanchor.getrank_id', '=', 'getrank.rank_id')
             ->join('anchors', 'getrank.anchors_id', '=', 'anchors.id')
-			->where('anchors.keyword', $keyword)
-			->where('getrank.rank', $rank)
+            ->where('anchors.id', $id)
+            ->where('getrank.rank', $rank)
             ->select('getanchor.*', 'getrank.url', 'getrank.title', 'getrank.description', 'anchors.status')
             ->get();
-			
-		if(!$rows->count()) 
-		return abort(404);
+            
+        if (!$rows->count()) {
+            return view('anchors.error');
+        }
         
         //Array that will contain our extracted links.
         $anchors = [];
-		$result = ['link' => $rows[0]->url,'title' => $rows[0]->title,'description' => $rows[0]->description,];
+        $result = ['link' => $rows[0]->url,'title' => $rows[0]->title,'description' => $rows[0]->description,];
 
         //Loop through the DOMNodeList.
         //We can do this because the DOMNodeList object is traversable.
-		foreach ($rows as $row) {
-		
-			//Add the link to our $anchors array.
-			$anchors[] = [
-				'text' => $row->anchor_text,
-				'url' => $row->anchor_url,
-				'type' => $row->anchor_type,
-			];
-					
-			// Get current page form url e.x. &page=1
-			$currentPage = LengthAwarePaginator::resolveCurrentPage();
+        foreach ($rows as $row) {
+        
+            //Add the link to our $anchors array.
+            $anchors[] = [
+                'text' => $row->anchor_text,
+                'url' => $row->anchor_url,
+                'type' => $row->anchor_type,
+            ];
+                    
+            // Get current page form url e.x. &page=1
+            $currentPage = LengthAwarePaginator::resolveCurrentPage();
  
-			// Create a new Laravel collection from the array data
-			$itemCollection = collect($anchors);
+            // Create a new Laravel collection from the array data
+            $itemCollection = collect($anchors);
  
-			// Define how many items we want to be visible in each page
-			$perPage = 10;
+            // Define how many items we want to be visible in each page
+            $perPage = 10;
  
-			// Slice the collection to get the items to display in current page
-			$currentPageItems = $itemCollection->slice(($currentPage * $perPage) - $perPage, $perPage)->all();
+            // Slice the collection to get the items to display in current page
+            $currentPageItems = $itemCollection->slice(($currentPage * $perPage) - $perPage, $perPage)->all();
  
-			// Create our paginator and pass it to the view
-			$paginatedItems= new LengthAwarePaginator($currentPageItems, count($itemCollection), $perPage);
+            // Create our paginator and pass it to the view
+            $paginatedItems= new LengthAwarePaginator($currentPageItems, count($itemCollection), $perPage);
  
-			// set url path for generted links
-			$paginatedItems->setPath($request->url());
-		}
+            // set url path for generted links
+            $paginatedItems->setPath($request->url());
+        }
         
         return view('anchors.detail', ['result' => $result,'rank' => $rank,'anchors' => $paginatedItems]);
     }

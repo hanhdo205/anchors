@@ -26,13 +26,13 @@
 			</form>
 		</div>
     <div class="col-8">
-		<table class="table table-bordered data-table">
+		<table class="table table-bordered data-table wrap">
 			<thead class="thead-dark">
 				<tr>
-					<th scope="col">ID</th>
-					<th scope="col">キーワード</th>
-					<th scope="col">ステータス</th>
-					<th scope="col">登録日</th>
+					<th nowrap scope="col">ID</th>
+					<th nowrap scope="col">キーワード</th>
+					<th nowrap scope="col">ステータス</th>
+					<th nowrap scope="col">登録日</th>
 				</tr>
 			</thead>
 		</table>
@@ -51,8 +51,8 @@
 				   columns: [
 							{ data: 'id', name: 'id' },
 							{ data: 'keyword', name: 'keyword',fnCreatedCell: function (nTd, sData, oData, iRow, iCol) {
-									if(oData.is_link > 1) {
-										$(nTd).html("<a href='/anchors/getrank/"+oData.keyword+"'>"+oData.keyword+"</a>");
+									if(oData.is_link > 1 && oData.is_link < 5) {
+										$(nTd).html("<a href='/anchors/getrank/"+oData.id+"'>"+oData.keyword+"</a>");
 									}
 								}
 							},

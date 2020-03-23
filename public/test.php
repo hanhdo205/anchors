@@ -1,7 +1,7 @@
 <?php
 $queryString = http_build_query([
   'access_key' => 'c06d8e2f37e9ad28c7baa29ffaacdfe6',
-  'query' => 'sample',
+  'query' => 'LIJAFLIWJANLVYNEWAFLFAKSDHFYAWFWAFE',
   'gl' => 'jp',
   'hl' => 'jp',
 ]);
@@ -15,8 +15,9 @@ $json = curl_exec($ch);
 curl_close($ch);
 
 $api_result = json_decode($json, true);
+echo count($api_result);
 echo "<textarea style='width: 1024px; height: 600px;'>";
-print_r($api_result['organic_results']);
+print_r($api_result);
 echo "</textarea>";
 
 // echo "Total results: ", $api_result['search_information']['total_results'], PHP_EOL;

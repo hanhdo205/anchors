@@ -2,7 +2,7 @@
 
 @section('content')
 
-	<table class="table">
+	<table class="table result-table">
         <thead class="thead-dark">
         <tr>
             <th scope="col">Rank ID</th>
@@ -17,7 +17,7 @@
                 <td>{{ $value['title'] }}</td>
                 <td>
 					@if($status == 4)
-						<a href="/anchors/getanchor/{{ $keyword }}/{{ $key }}">{{ $value['link'] }}</a>
+						<a href="/anchors/getanchor/{{ $id }}/{{ $key }}">{{ $value['link'] }}</a>
 					@else
 						{{ $value['link'] }}
 					@endif

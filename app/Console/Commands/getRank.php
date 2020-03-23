@@ -44,28 +44,33 @@ class getRank extends Command
     public function handle()
     {
         $rows = DB::table('anchors')->where('status', MY_CRAWL_TODO)->get();
-		
-		foreach($rows as $row) {
-			$id = $row->id;
-			$results = AnchorController::scrape($id);
-			if(empty($results))
-				$results = AnchorController::serpstack($id);
-			$content = [];
-			$getrank = [];
-			foreach ($results as $key => $value) {
-				$content[] = [$key,$value['title'],$value['link']];
-				$getrank[] = ['anchors_id' => $id, 'rank' => $key, 'title' => $value['title'], 'description' => $value['description'], 'url' => $value['link']];
-			}
-			if (!empty($content)) {
-				$this->info('Keyword ID: ' . $id);
-				$headers = ['Rank ID', 'Title', 'URL'];
-				Anchor::where('id', $id)->update(['status' => MY_CRAWL_URL_GENERATE,'result' => count($results)]);
-				// Store search result into getrank table
-				DB::table('getrank')->insert($getrank);
-				
-				$this->table($headers, $content);
-				$this->info('* Using command: php artisan getAnchor to access each website');
-			}
-		}
+        
+        foreach ($rows as $row) {
+            $id = $row->id;
+            $results = AnchorController::scrape($id);
+            if (empty($results)) {
+                $results = AnchorController::serpstack($id);
+            }
+            if (empty($results)) {
+                Anchor::where('id', $id)->update(['status' => MY_CRAWL_NO_RESULT,'result' => 0]);
+                $this->info('The result not found');
+            }
+            $content = [];
+            $getrank = [];
+            foreach ($results as $key => $value) {
+                $content[] = [$key,$value['title'],$value['link']];
+                $getrank[] = ['anchors_id' => $id, 'rank' => $key, 'title' => $value['title'], 'description' => $value['description'], 'url' => $value['link']];
+            }
+            if (!empty($content)) {
+                $this->info('Keyword ID: ' . $id);
+                $headers = ['Rank ID', 'Title', 'URL'];
+                Anchor::where('id', $id)->update(['status' => MY_CRAWL_URL_GENERATE,'result' => count($results)]);
+                // Store search result into getrank table
+                DB::table('getrank')->insert($getrank);
+                
+                $this->table($headers, $content);
+                $this->info('* Using command: php artisan getAnchor to access each website');
+            }
+        }
     }
 }

@@ -12,6 +12,21 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+	<style>
+	.data-table tbody tr td:nth-child(2),
+	.result-table tbody tr td:nth-child(3),
+	.detail-table tbody tr td:last-child,
+	.panel-heading	{
+		white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+		white-space: -webkit-pre-wrap;          /* Chrome & Safari */ 
+		white-space: -pre-wrap;                 /* Opera 4-6 */
+		white-space: -o-pre-wrap;               /* Opera 7 */
+		white-space: pre-wrap;                  /* CSS3 */
+		word-wrap: break-word;                  /* Internet Explorer 5.5+ */
+		word-break: break-all;
+		white-space: normal;
+	}
+	</style>
 	
     <!-- Scripts -->
     <script>
