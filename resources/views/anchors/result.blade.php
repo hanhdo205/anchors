@@ -32,6 +32,7 @@
 			   processing: true,
 			   searching: false,
 			   order: [[ 0, "asc" ]],
+			   bPaginate: false,
 			   language:
 				{
 					 "url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Japanese.json"
