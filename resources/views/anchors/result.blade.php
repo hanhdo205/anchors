@@ -2,7 +2,7 @@
 
 @section('content')
 
-	<table class="table result-table">
+	<table class="table table-bordered data-table result-table">
         <thead class="thead-dark">
         <tr>
             <th nowrap scope="col">Rank ID</th>
@@ -26,5 +26,20 @@
         @endforeach
         </tbody>
     </table>
+	<script>
+	   jQuery(document).ready( function ($) {
+		$('.data-table').DataTable({
+			   processing: true,
+			   searching: false,
+			   order: [[ 0, "asc" ]],
+			   language:
+				{
+					 "url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Japanese.json"
+				}
+			});
+
+		 });
+	</script>
+	<div class="pb-5"></div>
 	<!--* Using command: <strong>php artisan getAnchor</strong>-->
 @endsection

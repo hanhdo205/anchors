@@ -31,7 +31,7 @@
         </div>
     </div>
 
-	<table class="table detail-table">
+	<table class="table table-bordered data-table detail-table">
         <thead class="thead-dark">
         <tr>
             <th nowrap scope="col">ID</th>
@@ -51,5 +51,19 @@
         @endforeach
         </tbody>
     </table>
-	{{ $anchors->links() }}
+	<script>
+	   jQuery(document).ready( function ($) {
+		$('.data-table').DataTable({
+			   processing: true,
+			   searching: false,
+			   order: [[ 0, "asc" ]],
+			   language:
+				{
+					 "url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Japanese.json"
+				}
+			});
+
+		 });
+	</script>
+	<div class="pb-5"></div>
 @endsection

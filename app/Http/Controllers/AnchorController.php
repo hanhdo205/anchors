@@ -58,16 +58,6 @@ class AnchorController extends Controller
     }
     
     /**
-     * Show the form for registering a new keyword.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        return view('anchors.create');
-    }
-    
-    /**
      * Store a newly registered keyword in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -298,26 +288,8 @@ class AnchorController extends Controller
                 'url' => $row->anchor_url,
                 'type' => $row->anchor_type,
             ];
-                    
-            // Get current page form url e.x. &page=1
-            $currentPage = LengthAwarePaginator::resolveCurrentPage();
- 
-            // Create a new Laravel collection from the array data
-            $itemCollection = collect($anchors);
- 
-            // Define how many items we want to be visible in each page
-            $perPage = 10;
- 
-            // Slice the collection to get the items to display in current page
-            $currentPageItems = $itemCollection->slice(($currentPage * $perPage) - $perPage, $perPage)->all();
- 
-            // Create our paginator and pass it to the view
-            $paginatedItems= new LengthAwarePaginator($currentPageItems, count($itemCollection), $perPage);
- 
-            // set url path for generted links
-            $paginatedItems->setPath($request->url());
         }
         
-        return view('anchors.detail', ['result' => $result,'rank' => $rank,'anchors' => $paginatedItems]);
+        return view('anchors.detail', ['result' => $result,'rank' => $rank,'anchors' => $anchors]);
     }
 }
