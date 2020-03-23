@@ -277,7 +277,11 @@ class AnchorController extends Controller
             ->get();
             
         if (!$rows->count()) {
-            return view('anchors.error');
+			$url = DB::table('getrank')
+			->where('anchors_id', $id)
+			->where('rank', $rank)
+			->value('url');
+            return view('anchors.error',compact('url'));
         }
         
         //Array that will contain our extracted links.
