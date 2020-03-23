@@ -10,13 +10,9 @@
 					<textarea id="keyword" name="keyword" class="form-control" rows="4" cols="50"  placeholder="キーワードを登録してください。" autofocus="autofocus"></textarea>
 				</div>
 					@if ($errors->any())
-						<div class="alert alert-danger">
-							<ul>
-								@foreach ($errors->all() as $error)
-									<li>{{ $error }}</li>
-								@endforeach
-							</ul>
-						</div>
+						@foreach ($errors->all() as $error)
+							<div class="alert alert-danger">{{ $error }}</div>
+						@endforeach
 					@endif
 			  <button type="submit" class="btn btn-primary">登録</button>
 			</form>
