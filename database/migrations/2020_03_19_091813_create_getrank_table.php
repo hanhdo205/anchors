@@ -18,7 +18,7 @@ class CreateGetrankTable extends Migration
             $table->increments('rank_id');
             $table->integer('anchors_id');
             $table->integer('rank');
-            $table->string('title');
+            $table->text('title');
             $table->text('description');
             $table->text('url');
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));

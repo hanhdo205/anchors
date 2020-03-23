@@ -34,10 +34,10 @@
 	<table class="table detail-table">
         <thead class="thead-dark">
         <tr>
-            <th scope="col">ID</th>
-            <th scope="col">Anchor Text</th>
-            <th scope="col">Anchor Type</th>
-            <th scope="col">Anchor URL</th>
+            <th nowrap scope="col">ID</th>
+            <th nowrap scope="col">Anchor Text</th>
+            <th nowrap scope="col">Anchor Type</th>
+            <th nowrap scope="col">Anchor URL</th>
         </tr>
         </thead>
         <tbody>

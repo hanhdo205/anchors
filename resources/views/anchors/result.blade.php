@@ -5,9 +5,9 @@
 	<table class="table result-table">
         <thead class="thead-dark">
         <tr>
-            <th scope="col">Rank ID</th>
-            <th scope="col">Title</th>
-            <th scope="col">URL</th>
+            <th nowrap scope="col">Rank ID</th>
+            <th nowrap scope="col">Title</th>
+            <th nowrap scope="col">URL</th>
         </tr>
         </thead>
         <tbody>

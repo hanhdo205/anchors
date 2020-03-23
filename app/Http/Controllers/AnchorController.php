@@ -23,10 +23,10 @@ class AnchorController extends Controller
      */
     public function index()
     {
-        // $anchors = Anchor::orderByRaw('id DESC')->paginate(10);
-        
-        // return view('welcome', compact('anchors', $anchors));
-        return view('welcome');
+        $anchors = Anchor::orderByRaw('id DESC')->get();
+		if(isset($anchors[0]->id))
+			return view('welcome');
+        return view('empty');
     }
     
     public function anchorList()

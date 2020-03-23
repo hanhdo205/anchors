@@ -15,6 +15,7 @@
 	<style>
 	.data-table tbody tr td:nth-child(2),
 	.result-table tbody tr td:nth-child(3),
+	.detail-table tbody tr td:nth-child(2),
 	.detail-table tbody tr td:last-child,
 	.panel-heading	{
 		white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */

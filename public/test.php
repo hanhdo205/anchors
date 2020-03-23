@@ -1,12 +1,10 @@
 <?php
 $queryString = http_build_query([
   'access_key' => 'c06d8e2f37e9ad28c7baa29ffaacdfe6',
-  'query' => 'LIJAFLIWJANLVYNEWAFLFAKSDHFYAWFWAFE',
+  'query' => isset($_GET['q'])?$_GET['q']:'none',
   'gl' => 'jp',
   'hl' => 'jp',
 ]);
-
-var_dump($queryString);
 
 $ch = curl_init(sprintf('%s?%s', 'http://api.serpstack.com/search', $queryString));
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -15,7 +13,6 @@ $json = curl_exec($ch);
 curl_close($ch);
 
 $api_result = json_decode($json, true);
-echo count($api_result);
 echo "<textarea style='width: 1024px; height: 600px;'>";
 print_r($api_result);
 echo "</textarea>";
@@ -92,10 +89,10 @@ User-Agent
 */
  
 $html = str_get_html($data);
-//echo str_replace("/images/branding/googlelogo/", "https://www.google.co.jp/images/branding/googlelogo/", $html);
+// echo str_replace("/images/branding/googlelogo/", "https://www.google.co.jp/images/branding/googlelogo/", $html);
  
 $result = [];
- 
+$i = 1;
 foreach ($html->find('div.srg div.g') as $g) {
     /*
     each search results are in a list item with a class name 'g'
@@ -109,9 +106,12 @@ foreach ($html->find('div.srg div.g') as $g) {
     $s = $g->find('span.st', 0);
     $a = $g->find('a', 0);
     $t = $a->find('h3', 0);
-    $result[] = ['title' => strip_tags($t->innertext),
+	
+    $result[] = ['position' => $i,
+		'title' => strip_tags($t->innertext),
         'url' => $a->href,
         'snippet' => $s ? strip_tags($s->innertext) : ''];
+	$i++;
 }
  
 // echo serialize($result);
