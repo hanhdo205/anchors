@@ -15,7 +15,7 @@ class CreateAnchorsTable extends Migration
     {
         Schema::create('anchors', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('keyword');
+            $table->text('keyword');
             $table->integer('status')->default(1);
             $table->integer('result')->nullable();
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
