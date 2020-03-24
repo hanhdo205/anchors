@@ -16,7 +16,7 @@
                 <th scope="row">{{ $key + 1 }}</th>
                 <td>{{ $value['title'] }}</td>
                 <td>
-					@if($status == 4)
+					@if($status == MY_CRAWL_DONE)
 						<a href="/anchors/getanchor/{{ $id }}/{{ $key }}">{{ $value['link'] }}</a>
 					@else
 						{{ $value['link'] }}
